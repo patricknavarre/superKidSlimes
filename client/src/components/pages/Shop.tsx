@@ -18,7 +18,8 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:4020/api/products');
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4020';
+        const response = await axios.get(`${apiUrl}/api/products`);
         setProducts(response.data);
         setError(null);
       } catch (err) {

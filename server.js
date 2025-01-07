@@ -9,8 +9,20 @@ const { shopifyApp } = require("@shopify/shopify-app-express");
 
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? [
+          "https://super-kid-slimes.vercel.app",
+          "https://superkidslimes.vercel.app",
+        ]
+      : "http://localhost:4000",
+  optionsSuccessStatus: 200,
+};
+
 // Middleware
-app.use(cors()); // Allow all origins for development
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.json());
 

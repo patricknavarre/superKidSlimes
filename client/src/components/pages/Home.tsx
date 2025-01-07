@@ -1,186 +1,183 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-const Home: React.FC = () => {
+const Home = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const floatAnimation = {
+    y: [-10, 10],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+      ease: "easeInOut"
+    }
+  };
+
+  const glowAnimation = {
+    scale: [1, 1.02],
+    boxShadow: [
+      "0 0 0 rgba(0, 255, 170, 0.4)",
+      "0 0 20px rgba(0, 255, 170, 0.6)",
+      "0 0 0 rgba(0, 255, 170, 0.4)"
+    ],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+      ease: "easeInOut"
+    }
+  };
+
   return (
-    <div className="space-y-24">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       {/* Hero Section */}
-      <section className="text-center relative overflow-hidden py-16">
-        <div className="absolute inset-0 -z-10">
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-fun-purple opacity-20 rounded-full"
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 90, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div 
-            className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-fun-blue opacity-20 rounded-full"
-            animate={{
-              scale: [1, 1.1, 1],
-              x: [-10, 10, -10],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div 
-            className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-fun-pink opacity-20 rounded-full"
-            animate={{
-              scale: [1, 1.3, 1],
-              y: [-10, 10, -10],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-7xl font-display text-slime mb-8 animate-bounce-slow">
+      <div className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+          <motion.h1 
+            className="text-6xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6"
+            variants={itemVariants}
+          >
             Welcome to Super Kid Slimes!
-          </h1>
-          <p className="text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto"
+            variants={itemVariants}
+          >
             Discover the most amazing handmade slimes for endless fun and creativity!
-          </p>
-          <Link to="/shop" className="btn-primary text-lg px-8 py-3 text-xl">
-            Start Shopping
-          </Link>
-        </motion.div>
-      </section>
+          </motion.p>
+          <motion.div variants={itemVariants}>
+            <Link 
+              to="/shop"
+              className="inline-block px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full hover:from-emerald-500 hover:to-cyan-500 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Start Shopping
+            </Link>
+          </motion.div>
+        </div>
 
-      {/* Founder Story Section */}
-      <section className="max-w-6xl mx-auto px-4">
+        {/* Floating Decorative Elements */}
         <motion.div 
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-            <div className="space-y-6">
-              <h2 className="text-4xl font-display text-fun-purple mb-4">
+          className="absolute top-20 left-10 w-20 h-20 rounded-full bg-gradient-to-r from-pink-400 to-purple-400 opacity-20"
+          animate={floatAnimation}
+        />
+        <motion.div 
+          className="absolute bottom-20 right-10 w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 opacity-20"
+          animate={floatAnimation}
+        />
+      </div>
+
+      {/* Features Section */}
+      <motion.div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
+        variants={containerVariants}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl"
+            variants={itemVariants}
+            whileHover={glowAnimation}
+          >
+            <div className="h-12 w-12 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl mb-6" />
+            <h3 className="text-xl font-semibold mb-4">Premium Quality</h3>
+            <p className="text-gray-600">Handcrafted with love using the finest ingredients for the perfect texture.</p>
+          </motion.div>
+
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl"
+            variants={itemVariants}
+            whileHover={glowAnimation}
+          >
+            <div className="h-12 w-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl mb-6" />
+            <h3 className="text-xl font-semibold mb-4">Kid-Approved</h3>
+            <p className="text-gray-600">Tested and loved by kids, guaranteed to provide hours of entertainment.</p>
+          </motion.div>
+
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl md:col-span-2 lg:col-span-1"
+            variants={itemVariants}
+            whileHover={glowAnimation}
+          >
+            <div className="h-12 w-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl mb-6" />
+            <h3 className="text-xl font-semibold mb-4">Safe & Non-Toxic</h3>
+            <p className="text-gray-600">Made with safe, non-toxic ingredients that parents can trust.</p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Founder Section */}
+      <motion.div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
+        variants={containerVariants}
+      >
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl">
+          <motion.div className="grid md:grid-cols-2 gap-12 items-center" variants={itemVariants}>
+            <div>
+              <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-6">
                 Meet Our Founder
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-gray-600 text-lg mb-6">
                 Super Kid Slimes was founded by a 9-year-old entrepreneur with a passion for creating the perfect slime. 
                 What started as a fun hobby turned into an amazing business that brings joy to kids everywhere!
               </p>
               <div className="flex gap-4">
-                <span className="inline-flex items-center px-4 py-2 rounded-full bg-fun-purple bg-opacity-10 text-fun-purple font-bold">
-                  🌟 Young Entrepreneur
+                <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 text-purple-600">
+                  ✨ Young Entrepreneur
                 </span>
-                <span className="inline-flex items-center px-4 py-2 rounded-full bg-fun-pink bg-opacity-10 text-fun-pink font-bold">
-                  ✨ Kid-Approved
+                <span className="inline-flex items-center px-4 py-2 rounded-full bg-pink-100 text-pink-600">
+                  ✌️ Kid-Approved
                 </span>
               </div>
             </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-fun-purple/20 to-fun-pink/20 rounded-2xl transform rotate-3"></div>
-              <div className="absolute inset-0 bg-gradient-to-tr from-fun-blue/20 to-slime/20 rounded-2xl transform -rotate-3"></div>
-              <div className="relative bg-gray-100 rounded-2xl h-full min-h-[300px] flex items-center justify-center">
-                <span className="text-6xl">🧪</span>
+            <motion.div 
+              className="relative"
+              animate={floatAnimation}
+            >
+              <div className="aspect-square rounded-3xl bg-gradient-to-br from-purple-400/20 to-pink-400/20 flex items-center justify-center">
+                <motion.div 
+                  className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 360],
+                    transition: {
+                      duration: 10,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }
+                  }}
+                />
               </div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto px-4">
-        <motion.div 
-          className="card text-center transform hover:scale-105 transition-transform duration-200 overflow-hidden group"
-          whileHover={{ y: -5 }}
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-fun-purple/5 to-fun-pink/5 transform group-hover:scale-110 transition-transform duration-500"></div>
-          <div className="relative">
-            <div className="text-fun-purple text-7xl mb-6 transform group-hover:scale-110 transition-transform duration-200">✨</div>
-            <h2 className="text-3xl font-display text-fun-purple mb-4">
-              Sparkle Magic
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Watch your slime shimmer and shine with our special sparkle formula! Each slime has its own unique glitter pattern!
-            </p>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          className="card text-center transform hover:scale-105 transition-transform duration-200 overflow-hidden group"
-          whileHover={{ y: -5 }}
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-fun-blue/5 to-slime/5 transform group-hover:scale-110 transition-transform duration-500"></div>
-          <div className="relative">
-            <div className="text-fun-blue text-7xl mb-6 transform group-hover:scale-110 transition-transform duration-200">🌟</div>
-            <h2 className="text-3xl font-display text-fun-blue mb-4">
-              Magical Textures
-            </h2>
-            <p className="text-gray-600 text-lg">
-              From fluffy to crunchy, experience different sensations! Each slime is a new adventure!
-            </p>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Latest Products Preview */}
-      <section className="py-16 bg-gradient-to-b from-white to-purple-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <motion.h2 
-            className="text-5xl font-display text-slime text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            Latest Creations
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <motion.div 
-                key={index} 
-                className="card group transform hover:scale-105 transition-all duration-200"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-fun-purple/10 to-fun-pink/10 flex items-center justify-center text-4xl">
-                    🎨
-                  </div>
-                </div>
-                <h3 className="font-display text-xl text-gray-800 group-hover:text-slime transition-colors">
-                  Coming Soon!
-                </h3>
-                <p className="text-gray-500">$9.99</p>
-              </motion.div>
-            ))}
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

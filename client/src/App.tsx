@@ -4,6 +4,7 @@ import Home from './components/pages/Home';
 import Shop from './components/pages/Shop';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
+import Cart from './components/pages/Cart';
 
 const App: React.FC = () => {
   return (
@@ -30,6 +31,12 @@ const App: React.FC = () => {
                 <Link to="/contact" className="text-gray-600 hover:text-slime font-bold">
                   Contact
                 </Link>
+                <Link to="/cart" className="text-gray-600 hover:text-slime font-bold">
+                  <span className="mr-2">Cart</span>
+                  <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm">
+                    2
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -42,6 +49,7 @@ const App: React.FC = () => {
             <Route path="/shop" element={<Shop />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
           </Routes>
         </main>
 

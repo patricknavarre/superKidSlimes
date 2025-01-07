@@ -15,8 +15,9 @@ const Navigation = () => {
   const wiggleAnimation = {
     animate: {
       rotate: [0, 2, 0, -2, 0],
+      scale: [1, 1.02, 1, 1.02, 1],
       transition: {
-        duration: 2,
+        duration: 3,
         repeat: Infinity,
         ease: "easeInOut"
       }
@@ -34,9 +35,9 @@ const Navigation = () => {
                 whileHover={{ scale: 1.05 }}
                 animate={wiggleAnimation.animate}
               >
-                <span className="text-teal-500">Super</span>{' '}
-                <span className="text-indigo-500">Kid</span>{' '}
-                <span className="text-teal-500">Slimes</span>
+                <span className="text-pink-400">Super</span>{' '}
+                <span className="text-purple-400">Kid</span>{' '}
+                <span className="text-pink-400">Slimes</span>
               </motion.div>
             </Link>
           </div>
@@ -47,26 +48,26 @@ const Navigation = () => {
             >
               <Link 
                 to="/shop" 
-                className="bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:from-teal-600 hover:to-indigo-600 transition-all duration-300 shadow-md"
+                className="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold py-2 px-6 rounded-full hover:from-pink-500 hover:to-purple-500 transition-all duration-300 shadow-md"
               >
                 Shop Now
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/about" className="text-gray-600 hover:text-teal-500 font-medium transition-colors duration-300">
+              <Link to="/about" className="text-gray-600 hover:text-pink-400 font-medium transition-colors duration-300">
                 About
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/contact" className="text-gray-600 hover:text-teal-500 font-medium transition-colors duration-300">
+              <Link to="/contact" className="text-gray-600 hover:text-pink-400 font-medium transition-colors duration-300">
                 Contact
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/cart" className="text-gray-600 hover:text-teal-500 font-medium flex items-center transition-colors duration-300">
+              <Link to="/cart" className="text-gray-600 hover:text-pink-400 font-medium flex items-center transition-colors duration-300">
                 <span className="mr-2">Cart</span>
                 {cartCount > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm font-bold">
+                  <div className="w-6 h-6 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-sm font-bold">
                     {cartCount}
                   </div>
                 )}
@@ -83,7 +84,7 @@ const App = () => {
   return (
     <CartProvider>
       <Router>
-        <div className="min-h-screen bg-gradient-to-b from-teal-50 via-indigo-50 to-white">
+        <div className="min-h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-white">
           <Navigation />
 
           {/* Main Content */}
@@ -98,13 +99,13 @@ const App = () => {
           </main>
 
           {/* Footer */}
-          <footer className="bg-white mt-12 border-t border-teal-100">
+          <footer className="bg-white mt-12 border-t border-pink-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                  <h3 className="font-display text-lg text-teal-500 mb-4">About Us</h3>
+                  <h3 className="font-display text-lg text-pink-400 mb-4">About Us</h3>
                   <p className="text-gray-600">
-                    Creating fun and safe slimes for kids to enjoy and explore their creativity.
+                    Creating magical and safe slimes for kids to enjoy and spark their imagination.
                   </p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './components/pages/Home';
 import Shop from './components/pages/Shop';
@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 // Separate component for navigation to use cart context
 const Navigation = () => {
   const { cartCount } = useCart();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const wiggleAnimation = {
     animate: {
@@ -28,10 +29,10 @@ const Navigation = () => {
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center">
               <motion.div
-                className="text-3xl font-display"
+                className="text-xl sm:text-2xl md:text-3xl font-display"
                 whileHover={{ scale: 1.05 }}
                 animate={wiggleAnimation.animate}
               >
@@ -41,7 +42,25 @@ const Navigation = () => {
               </motion.div>
             </Link>
           </div>
-          <div className="flex items-center space-x-6">
+
+          {/* Mobile menu button */}
+          <div className="flex items-center md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-600 hover:text-pink-400 focus:outline-none"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Desktop navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-6">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -75,6 +94,34 @@ const Navigation = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-2">
+            <div className="flex flex-col space-y-4 pb-4">
+              <Link 
+                to="/shop" 
+                className="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold py-2 px-6 rounded-full hover:from-pink-500 hover:to-purple-500 transition-all duration-300 shadow-md text-center"
+              >
+                Shop Now
+              </Link>
+              <Link to="/about" className="text-gray-600 hover:text-pink-400 font-medium transition-colors duration-300 text-center">
+                About
+              </Link>
+              <Link to="/contact" className="text-gray-600 hover:text-pink-400 font-medium transition-colors duration-300 text-center">
+                Contact
+              </Link>
+              <Link to="/cart" className="text-gray-600 hover:text-pink-400 font-medium flex items-center justify-center transition-colors duration-300">
+                <span className="mr-2">Cart</span>
+                {cartCount > 0 && (
+                  <div className="w-6 h-6 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-sm font-bold">
+                    {cartCount}
+                  </div>
+                )}
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

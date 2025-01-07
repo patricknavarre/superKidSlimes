@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
 const { shopifyApi } = require("@shopify/shopify-api");
 const { restResources } = require("@shopify/shopify-api/rest/admin/2023-10");
 
@@ -27,6 +28,11 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.json());
 
+// Serve static files in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client/build")));
+}
+
 // Initialize Shopify (if needed)
 if (process.env.SHOPIFY_API_KEY) {
   const shopify = shopifyApi({
@@ -48,13 +54,14 @@ if (process.env.MONGODB_URI) {
     .catch((err) => console.log("MongoDB connection error:", err));
 }
 
-// Basic routes
-app.get("/api", (req, res) => {
+// API Routes
+const apiRouter = express.Router();
+
+apiRouter.get("/", (req, res) => {
   res.json({ message: "API is running!" });
 });
 
-// Products route
-app.get("/api/products", async (req, res) => {
+apiRouter.get("/products", async (req, res) => {
   try {
     // Mock data for now
     const products = [
@@ -97,6 +104,16 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
+
+// Mount API routes
+app.use("/api", apiRouter);
+
+// Serve React app for all other routes in production
+if (process.env.NODE_ENV === "production") {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

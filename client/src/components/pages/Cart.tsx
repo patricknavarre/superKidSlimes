@@ -1,229 +1,101 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useCart } from '../../context/CartContext';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  shopifyVariantId?: string;
-}
 
 const Cart = () => {
-  // This will be replaced with actual cart state management later
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: '1',
-      name: 'Galaxy Glitter Slime',
-      price: 12.99,
-      quantity: 2,
-      shopifyVariantId: 'gid://shopify/ProductVariant/123',
-    },
-    {
-      id: '2',
-      name: 'Unicorn Cloud Slime',
-      price: 14.99,
-      quantity: 1,
-      shopifyVariantId: 'gid://shopify/ProductVariant/456',
-    }
-  ]);
+  const { cartItems, removeFromCart, updateQuantity, cartCount } = useCart();
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { x: -20, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+  if (cartCount === 0) {
+    return (
+      <div className="text-center py-16">
+        <h2 className="text-2xl font-display text-gray-900 mb-4">Your cart is empty</h2>
+        <p className="text-gray-600 mb-8">Add some slime to get started!</p>
+        <motion.a
+          href="/shop"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="inline-block bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-md hover:from-teal-600 hover:to-indigo-600 transition-all duration-300"
+        >
+          Shop Now
+        </motion.a>
+      </div>
     );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
-
-  const handleCheckout = async () => {
-    setIsProcessing(true);
-    try {
-      // This will be implemented when Shopify is integrated
-      // The checkout flow would look something like this:
-      
-      // 1. Create a Shopify checkout
-      // const response = await fetch('/api/create-checkout', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     items: cartItems.map(item => ({
-      //       variantId: item.shopifyVariantId,
-      //       quantity: item.quantity
-      //     }))
-      //   }),
-      // });
-
-      // 2. Get the checkout URL from the response
-      // const { checkoutUrl } = await response.json();
-
-      // 3. Redirect to Shopify's checkout
-      // window.location.href = checkoutUrl;
-
-      // For now, we'll just show a console message
-      console.log('Proceeding to Shopify checkout with items:', cartItems);
-      
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-      // You might want to show an error message to the user here
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  }
 
   return (
-    <motion.div
-      className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-12"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h1 
-          className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-8 text-center"
-          variants={itemVariants}
-        >
-          Your Magical Cart
-        </motion.h1>
-
-        {cartItems.length > 0 ? (
-          <>
-            <motion.div className="space-y-4" variants={containerVariants}>
-              {cartItems.map((item) => (
-                <motion.div
-                  key={item.id}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg"
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 flex items-center justify-center">
-                        <span className="text-2xl">🎨</span>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
-                        <p className="text-purple-500 font-medium">${item.price.toFixed(2)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center hover:bg-purple-200 transition-colors"
-                          disabled={isProcessing}
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center hover:bg-purple-200 transition-colors"
-                          disabled={isProcessing}
-                        >
-                          +
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-500 hover:text-red-600 transition-colors"
-                        disabled={isProcessing}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-display text-gray-900 mb-8">Shopping Cart</h1>
+      
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="p-6">
+          {cartItems.map((item) => (
             <motion.div
-              className="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg"
-              variants={itemVariants}
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex items-center py-6 border-b border-gray-200 last:border-0"
             >
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg text-gray-600">Total</span>
-                <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                  ${calculateTotal().toFixed(2)}
-                </span>
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-24 h-24 object-cover rounded-lg"
+              />
+              <div className="flex-1 ml-6">
+                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                <p className="text-teal-600">${item.price.toFixed(2)}</p>
               </div>
-              <button
-                onClick={handleCheckout}
-                disabled={isProcessing}
-                className={`w-full py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl ${
-                  isProcessing ? 'opacity-75 cursor-not-allowed' : 'hover:from-purple-500 hover:to-pink-500'
-                }`}
-              >
-                {isProcessing ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </span>
-                ) : (
-                  'Proceed to Checkout'
-                )}
-              </button>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center border rounded-lg">
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                  >
+                    -
+                  </button>
+                  <span className="px-3 py-1 text-gray-900">{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
             </motion.div>
-          </>
-        ) : (
-          <motion.div
-            className="text-center py-12"
-            variants={itemVariants}
+          ))}
+        </div>
+        
+        <div className="bg-gray-50 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-lg font-semibold text-gray-900">Total</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-indigo-500 bg-clip-text text-transparent">
+              ${total.toFixed(2)}
+            </span>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold py-3 px-6 rounded-full shadow-md hover:from-teal-600 hover:to-indigo-600 transition-all duration-300"
+            onClick={() => {
+              // Handle checkout logic here
+              console.log('Proceeding to checkout...');
+            }}
           >
-            <div className="text-6xl mb-4">🛒</div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your cart is empty</h2>
-            <p className="text-gray-600 mb-8">Add some magical slimes to get started!</p>
-            <Link
-              to="/shop"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-semibold hover:from-purple-500 hover:to-pink-500 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Continue Shopping
-            </Link>
-          </motion.div>
-        )}
+            Proceed to Checkout
+          </motion.button>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

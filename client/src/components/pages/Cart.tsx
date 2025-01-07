@@ -8,6 +8,7 @@ interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  shopifyVariantId?: string;
 }
 
 const Cart = () => {
@@ -18,14 +19,18 @@ const Cart = () => {
       name: 'Galaxy Glitter Slime',
       price: 12.99,
       quantity: 2,
+      shopifyVariantId: 'gid://shopify/ProductVariant/123',
     },
     {
       id: '2',
       name: 'Unicorn Cloud Slime',
       price: 14.99,
       quantity: 1,
+      shopifyVariantId: 'gid://shopify/ProductVariant/456',
     }
   ]);
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -64,6 +69,43 @@ const Cart = () => {
 
   const removeItem = (id: string) => {
     setCartItems(items => items.filter(item => item.id !== id));
+  };
+
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    try {
+      // This will be implemented when Shopify is integrated
+      // The checkout flow would look something like this:
+      
+      // 1. Create a Shopify checkout
+      // const response = await fetch('/api/create-checkout', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     items: cartItems.map(item => ({
+      //       variantId: item.shopifyVariantId,
+      //       quantity: item.quantity
+      //     }))
+      //   }),
+      // });
+
+      // 2. Get the checkout URL from the response
+      // const { checkoutUrl } = await response.json();
+
+      // 3. Redirect to Shopify's checkout
+      // window.location.href = checkoutUrl;
+
+      // For now, we'll just show a console message
+      console.log('Proceeding to Shopify checkout with items:', cartItems);
+      
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -107,6 +149,7 @@ const Cart = () => {
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center hover:bg-purple-200 transition-colors"
+                          disabled={isProcessing}
                         >
                           -
                         </button>
@@ -114,6 +157,7 @@ const Cart = () => {
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center hover:bg-purple-200 transition-colors"
+                          disabled={isProcessing}
                         >
                           +
                         </button>
@@ -121,6 +165,7 @@ const Cart = () => {
                       <button
                         onClick={() => removeItem(item.id)}
                         className="text-red-500 hover:text-red-600 transition-colors"
+                        disabled={isProcessing}
                       >
                         Remove
                       </button>
@@ -141,9 +186,23 @@ const Cart = () => {
                 </span>
               </div>
               <button
-                className="w-full py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl font-semibold hover:from-purple-500 hover:to-pink-500 transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                onClick={handleCheckout}
+                disabled={isProcessing}
+                className={`w-full py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl ${
+                  isProcessing ? 'opacity-75 cursor-not-allowed' : 'hover:from-purple-500 hover:to-pink-500'
+                }`}
               >
-                Proceed to Checkout
+                {isProcessing ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  'Proceed to Checkout'
+                )}
               </button>
             </motion.div>
           </>

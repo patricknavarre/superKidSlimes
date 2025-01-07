@@ -3,9 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { shopifyApi, LATEST_API_VERSION } = require("@shopify/shopify-api");
+const { shopifyApi } = require("@shopify/shopify-api");
 const { restResources } = require("@shopify/shopify-api/rest/admin/2023-10");
-const { shopifyApp } = require("@shopify/shopify-app-express");
 
 const app = express();
 
@@ -16,8 +15,10 @@ const corsOptions = {
       ? [
           "https://super-kid-slimes.vercel.app",
           "https://superkidslimes.vercel.app",
+          /\.vercel\.app$/,
         ]
       : "http://localhost:4000",
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 
@@ -26,40 +27,36 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.json());
 
-// Initialize Shopify
-const shopify = shopifyApi({
-  apiKey: process.env.SHOPIFY_API_KEY,
-  apiSecretKey: process.env.SHOPIFY_API_SECRET,
-  scopes: ["read_products"],
-  hostName: process.env.SHOPIFY_SHOP_NAME,
-  apiVersion: "2023-10", // Using a specific version instead of LATEST_API_VERSION
-  isEmbeddedApp: false,
-  restResources,
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
+// Initialize Shopify (if needed)
+if (process.env.SHOPIFY_API_KEY) {
+  const shopify = shopifyApi({
+    apiKey: process.env.SHOPIFY_API_KEY,
+    apiSecretKey: process.env.SHOPIFY_API_SECRET,
+    scopes: ["read_products"],
+    hostName: process.env.SHOPIFY_SHOP_NAME,
+    apiVersion: "2023-10",
+    isEmbeddedApp: false,
+    restResources,
+  });
+}
 
 // MongoDB Connection
-mongoose
-  .connect(
-    process.env.MONGODB_URI || "mongodb://localhost:27017/superKidSlimes"
-  )
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+if (process.env.MONGODB_URI) {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.log("MongoDB connection error:", err));
+}
 
 // Basic routes
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.json({ message: "API is running!" });
 });
 
-// Products route - using mock data for now, will integrate with Shopify later
+// Products route
 app.get("/api/products", async (req, res) => {
   try {
-    // For now, return mock data
+    // Mock data for now
     const products = [
       {
         id: "1",
@@ -101,8 +98,19 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// Start server
-const PORT = process.env.PORT || 7000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
 });
+
+// Handle Vercel serverless environment
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 4020;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;

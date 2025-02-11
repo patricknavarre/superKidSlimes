@@ -64,21 +64,30 @@ const Navigation = () => {
                 Shop Now
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/about" className="text-white hover:text-pink-200 font-medium transition-colors duration-300">
-                About
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/contact" className="text-white hover:text-pink-200 font-medium transition-colors duration-300">
-                Contact
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link to="/cart" className="text-white hover:text-pink-200 font-medium flex items-center transition-colors duration-300">
-                <span className="mr-2">Cart</span>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link 
+                to="/cart" 
+                className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center space-x-2"
+              >
+                <svg 
+                  className="w-5 h-5" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" 
+                  />
+                </svg>
+                <span>Cart</span>
                 {cartCount > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-white text-pink-500 flex items-center justify-center text-sm font-bold border-2 border-black">
+                  <div className="bg-pink-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-sm font-bold">
                     {cartCount}
                   </div>
                 )}
@@ -97,16 +106,26 @@ const Navigation = () => {
               >
                 Shop Now
               </Link>
-              <Link to="/about" className="text-white hover:text-pink-200 font-medium transition-colors duration-300 text-center">
-                About
-              </Link>
-              <Link to="/contact" className="text-white hover:text-pink-200 font-medium transition-colors duration-300 text-center">
-                Contact
-              </Link>
-              <Link to="/cart" className="text-white hover:text-pink-200 font-medium flex items-center justify-center transition-colors duration-300">
-                <span className="mr-2">Cart</span>
+              <Link 
+                to="/cart" 
+                className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center justify-center space-x-2"
+              >
+                <svg 
+                  className="w-5 h-5" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" 
+                  />
+                </svg>
+                <span>Cart</span>
                 {cartCount > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-white text-pink-500 flex items-center justify-center text-sm font-bold border-2 border-black">
+                  <div className="bg-pink-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-sm font-bold ml-2">
                     {cartCount}
                   </div>
                 )}

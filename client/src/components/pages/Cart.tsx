@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
+import { Dialog } from '@headlessui/react';
+import { AnimatePresence } from 'framer-motion';
 
 interface CheckoutForm {
   name: string;
@@ -10,6 +12,78 @@ interface CheckoutForm {
   address: string;
   phone: string;
 }
+
+const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <Dialog
+          open={isOpen}
+          onClose={onClose}
+          className="relative z-50"
+        >
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel>
+              <motion.div 
+                className="bg-gradient-to-b from-pink-100 to-purple-100 rounded-2xl p-8 shadow-xl border-4 border-black max-w-md w-full"
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.5, opacity: 0 }}
+                transition={{ type: "spring", bounce: 0.5 }}
+              >
+                <motion.div 
+                  className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center border-4 border-black shadow-lg"
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                >
+                  <span className="text-3xl">✨</span>
+                </motion.div>
+
+                <Dialog.Title className="text-2xl font-display text-center font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text mb-4">
+                  Yay! Order Confirmed! 🎉
+                </Dialog.Title>
+
+                <motion.div 
+                  className="space-y-4 text-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <p className="text-gray-700 font-medium">
+                    Your magical slimes will be hand-delivered with extra sparkles! ✨
+                  </p>
+
+                  <div className="bg-white/50 rounded-xl p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <h3 className="font-bold text-pink-600 mb-2">Payment Due on Delivery</h3>
+                    <p className="text-gray-600">We accept:</p>
+                    <div className="flex justify-center gap-4 mt-2">
+                      <span className="px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-full font-bold border-2 border-black">
+                        Venmo
+                      </span>
+                      <span className="px-4 py-2 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full font-bold border-2 border-black">
+                        Cash
+                      </span>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    onClick={onClose}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Got it! 🌟
+                  </motion.button>
+                </motion.div>
+              </motion.div>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, cartCount, clearCart } = useCart();
@@ -22,6 +96,7 @@ const Cart = () => {
   });
   const [showForm, setShowForm] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const total = items.reduce((sum: number, item) => sum + item.price * item.quantity, 0);
 
@@ -35,6 +110,7 @@ const Cart = () => {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Starting checkout process...');
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
@@ -70,20 +146,29 @@ Total Order Amount: $${total.toFixed(2)}
     };
 
     try {
+      console.log('Sending email...');
       await emailjs.send(
         'service_wg2vx5s',
         'template_rgiuw7b',
         emailContent
       );
+      
+      console.log('Email sent successfully, showing modal...');
+      setShowSuccessModal(true);
       setSubmitStatus('success');
-      clearCart();
       setShowForm(false);
+      
     } catch (error) {
       console.error('Error sending email:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    clearCart();
   };
 
   if (cartCount === 0) {
@@ -122,6 +207,10 @@ Total Order Amount: $${total.toFixed(2)}
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-pink-200 via-yellow-100 to-orange-200">
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={handleModalClose} 
+      />
       {/* Header Section */}
       <div className="w-full bg-gradient-to-r from-orange-400 via-pink-400 to-yellow-400 p-6 shadow-lg mb-8">
         <motion.h1 

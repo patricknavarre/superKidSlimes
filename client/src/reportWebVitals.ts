@@ -1,11 +1,12 @@
-const reportWebVitals = async (onPerfEntry?: any) => {
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+
+const reportWebVitals = (onPerfEntry?: any) => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
-    const { onCLS, onFID, onFCP, onLCP, onTTFB } = await import('web-vitals');
-    onCLS(onPerfEntry);
-    onFID(onPerfEntry);
-    onFCP(onPerfEntry);
-    onLCP(onPerfEntry);
-    onTTFB(onPerfEntry);
+    getCLS(onPerfEntry);
+    getFID(onPerfEntry);
+    getFCP(onPerfEntry);
+    getLCP(onPerfEntry);
+    getTTFB(onPerfEntry);
   }
 };
 

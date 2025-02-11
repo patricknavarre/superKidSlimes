@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 
 interface FormData {
   name: string;
@@ -7,6 +8,7 @@ interface FormData {
 }
 
 const Contact: React.FC = () => {
+  const form = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -32,11 +34,18 @@ const Contact: React.FC = () => {
     setSubmitStatus('idle');
 
     try {
-      // TODO: Implement actual form submission
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+      if (form.current) {
+        await emailjs.sendForm(
+          'YOUR_SERVICE_ID', // Replace with your Email.js service ID
+          'YOUR_TEMPLATE_ID', // Replace with your Email.js template ID
+          form.current,
+          'YOUR_PUBLIC_KEY' // Replace with your Email.js public key
+        );
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+      }
     } catch (error) {
+      console.error('Error sending email:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -59,7 +68,7 @@ const Contact: React.FC = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form ref={form} onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="name" className="block text-gray-700 mb-2">
             Name

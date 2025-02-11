@@ -4,8 +4,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
-const { shopifyApi } = require("@shopify/shopify-api");
-const { restResources } = require("@shopify/shopify-api/rest/admin/2023-10");
 
 const app = express();
 
@@ -31,19 +29,6 @@ app.use(express.json());
 // Serve static files in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client/build")));
-}
-
-// Initialize Shopify (if needed)
-if (process.env.SHOPIFY_API_KEY) {
-  const shopify = shopifyApi({
-    apiKey: process.env.SHOPIFY_API_KEY,
-    apiSecretKey: process.env.SHOPIFY_API_SECRET,
-    scopes: ["read_products"],
-    hostName: process.env.SHOPIFY_SHOP_NAME,
-    apiVersion: "2023-10",
-    isEmbeddedApp: false,
-    restResources,
-  });
 }
 
 // MongoDB Connection

@@ -39,17 +39,34 @@ const Cart = () => {
     setSubmitStatus('idle');
 
     const orderDetails = items.map(item => 
-      `${item.title} - Quantity: ${item.quantity} - Price: $${(item.price * item.quantity).toFixed(2)}`
-    ).join('\n');
+      `• ${item.title}\n  - Quantity: ${item.quantity}\n  - Price per item: $${item.price.toFixed(2)}\n  - Subtotal: $${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n\n');
+
+    const formattedMessage = `
+Customer Information:
+-------------------
+Name: ${checkoutForm.name}
+Email: ${checkoutForm.email}
+Phone: ${checkoutForm.phone}
+Shipping Address: ${checkoutForm.address}
+
+Order Details:
+-------------------
+${orderDetails}
+
+Total Order Amount: $${total.toFixed(2)}
+    `;
 
     const emailContent = {
-      to_email: process.env.REACT_APP_CONTACT_EMAIL,
+      to_name: "Super Kid Slimes",
       from_name: checkoutForm.name,
       customer_email: checkoutForm.email,
       customer_phone: checkoutForm.phone,
       customer_address: checkoutForm.address,
+      message: formattedMessage,
       order_details: orderDetails,
       total_amount: `$${total.toFixed(2)}`,
+      reply_to: checkoutForm.email
     };
 
     try {

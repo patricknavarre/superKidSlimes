@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/pages/Home';
 import Shop from './components/pages/Shop';
@@ -7,11 +7,17 @@ import Contact from './components/pages/Contact';
 import Cart from './components/pages/Cart';
 import Navigation from './components/Navigation';
 import { CartProvider } from './context/CartContext';
+import emailjs from '@emailjs/browser';
 
 const App = () => {
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init('FsKNSDRtYP7OliZQs');
+  }, []);
+
   return (
     <CartProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="min-h-screen w-full bg-gradient-to-b from-pink-50 via-purple-50 to-white overflow-x-hidden">
           <Navigation />
 

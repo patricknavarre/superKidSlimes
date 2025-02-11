@@ -41,10 +41,10 @@ const Cart = () => {
     // Create the email content
     const orderDetails = items.map(item => 
       `${item.title} - Quantity: ${item.quantity} - Price: $${(item.price * item.quantity).toFixed(2)}`
-    ).join('\\n');
+    ).join('\n');
 
     const emailContent = {
-      to_email: 'househeadpat@gmail.com',
+      to_email: process.env.REACT_APP_CONTACT_EMAIL,
       from_name: checkoutForm.name,
       customer_email: checkoutForm.email,
       customer_phone: checkoutForm.phone,
@@ -55,10 +55,10 @@ const Cart = () => {
 
     try {
       await emailjs.send(
-        'YOUR_SERVICE_ID', // Replace with your Email.js service ID
-        'YOUR_TEMPLATE_ID', // Replace with your Email.js template ID
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || '',
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID_ORDER || '',
         emailContent,
-        'YOUR_PUBLIC_KEY' // Replace with your Email.js public key
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || ''
       );
       setSubmitStatus('success');
       clearCart();

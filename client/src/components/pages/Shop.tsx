@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
+import CartConfetti from '../CartConfetti';
 
 interface Product {
   id: string;
@@ -18,6 +19,7 @@ const Shop = () => {
   const { addToCart } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [confettiPosition, setConfettiPosition] = useState<{ x: number; y: number } | null>(null);
   const [timeUntilNextDrop, setTimeUntilNextDrop] = useState<{
     days: number;
     hours: number;
@@ -114,7 +116,7 @@ const Shop = () => {
     ? products
     : products.filter(product => product.category === selectedCategory);
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: Product, event: React.MouseEvent<HTMLButtonElement>) => {
     const quantity = quantities[product.id] || 1;
     for (let i = 0; i < quantity; i++) {
       addToCart({
@@ -124,6 +126,16 @@ const Shop = () => {
         image: product.image
       });
     }
+    // Set confetti position to the button click location
+    const rect = event.currentTarget.getBoundingClientRect();
+    setConfettiPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    });
+    // Reset confetti after animation
+    setTimeout(() => {
+      setConfettiPosition(null);
+    }, 2000);
     // Reset quantity after adding to cart
     setQuantities(prev => ({
       ...prev,
@@ -133,6 +145,10 @@ const Shop = () => {
 
   return (
     <div className="w-full bg-gradient-to-b from-pink-200 via-yellow-100 to-orange-200">
+      {confettiPosition && (
+        <CartConfetti x={confettiPosition.x} y={confettiPosition.y} />
+      )}
+      
       {/* Header Section with new gradient */}
       <div className="w-full bg-gradient-to-r from-orange-400 via-pink-400 to-yellow-400 p-6 shadow-lg mb-8">
         <div className="max-w-7xl mx-auto">
@@ -241,7 +257,7 @@ const Shop = () => {
                     {/* Quantity Selector */}
                     <div className="flex items-center bg-gray-100 rounded-full border-2 border-black">
                       <button
-                        onClick={() => handleQuantityChange(product.id, -1)}
+                        onClick={(e) => handleQuantityChange(product.id, -1)}
                         className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-pink-600 transition-colors duration-300 rounded-l-full border-r-2 border-black hover:bg-gray-200"
                       >
                         -
@@ -250,14 +266,14 @@ const Shop = () => {
                         {quantities[product.id] || 1}
                       </span>
                       <button
-                        onClick={() => handleQuantityChange(product.id, 1)}
+                        onClick={(e) => handleQuantityChange(product.id, 1)}
                         className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-pink-600 transition-colors duration-300 rounded-r-full border-l-2 border-black hover:bg-gray-200"
                       >
                         +
                       </button>
                     </div>
                     <button
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => handleAddToCart(product, e)}
                       className="px-4 py-2 bg-gradient-to-r from-pink-400 to-purple-400 text-white rounded-full hover:from-pink-500 hover:to-purple-500 transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
                     >
                       Add to Cart

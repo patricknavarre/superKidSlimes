@@ -5,6 +5,7 @@ import Shop from './components/pages/Shop';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import Cart from './components/pages/Cart';
+import SuperSlimeSecrets from './components/pages/SuperSlimeSecrets';
 import Navigation from './components/Navigation';
 import { CartProvider } from './context/CartContext';
 import emailjs from '@emailjs/browser';
@@ -29,6 +30,7 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/secrets" element={<SuperSlimeSecrets />} />
             </Routes>
           </main>
 

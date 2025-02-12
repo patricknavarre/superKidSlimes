@@ -69,6 +69,18 @@ const Navigation = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Link 
+                to="/secrets" 
+                className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center space-x-2"
+              >
+                <span className="text-lg">✨</span>
+                <span>Slime Secrets</span>
+              </Link>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link 
                 to="/cart" 
                 className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center space-x-2"
               >
@@ -105,6 +117,13 @@ const Navigation = () => {
                 className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] text-center"
               >
                 Shop Now
+              </Link>
+              <Link 
+                to="/secrets" 
+                className="bg-white text-pink-500 font-bold py-2 px-6 rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center justify-center space-x-2"
+              >
+                <span className="text-lg">✨</span>
+                <span>Slime Secrets</span>
               </Link>
               <Link 
                 to="/cart" 

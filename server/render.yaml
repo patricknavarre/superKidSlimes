@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: super-kids-slime-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # This will be set manually in Render dashboard
+      - key: PORT
+        value: 10000

@@ -171,7 +171,7 @@ Total Order Amount: $${total.toFixed(2)}
     }
   };
 
-  return (
+    return (
     <AnimatePresence>
       {isOpen && (
         <Dialog
@@ -270,7 +270,7 @@ Total Order Amount: $${total.toFixed(2)}
                 </form>
               </motion.div>
             </Dialog.Panel>
-          </div>
+      </div>
         </Dialog>
       )}
     </AnimatePresence>
@@ -372,7 +372,7 @@ const Cart = () => {
 
           {/* Cart Items */}
           <div className="max-w-4xl mx-auto px-4 py-8">
-            <motion.div 
+            <motion.div
               className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-[#FFB5A7]/20 overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -400,47 +400,47 @@ const Cart = () => {
                         <h3 className="text-lg font-bold text-[#FFB5A7]">{item.title}</h3>
                         <p className="text-[#FFB5A7]">${item.price.toFixed(2)}</p>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
+              </div>
+              <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-2">
-                        <button
+                  <button
                           onClick={() => {
                             const currentQuantity = item.quantity || 1;
                             handleQuantityChange(item.id, currentQuantity - 1);
                           }}
                           className="w-8 h-8 rounded-full bg-[#FFB5A7]/10 text-[#FFB5A7] hover:bg-[#FFB5A7]/20 flex items-center justify-center"
                           disabled={item.quantity <= 1}
-                        >
-                          -
-                        </button>
+                  >
+                    -
+                  </button>
                         <span className="w-8 text-center text-[#FFB5A7] font-medium">{item.quantity || 1}</span>
-                        <button
+                  <button
                           onClick={() => {
                             const currentQuantity = item.quantity || 1;
                             handleQuantityChange(item.id, currentQuantity + 1);
                           }}
                           className="w-8 h-8 rounded-full bg-[#FFB5A7]/10 text-[#FFB5A7] hover:bg-[#FFB5A7]/20 flex items-center justify-center"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <button
+                  >
+                    +
+                  </button>
+                </div>
+                <button
                         onClick={() => handleRemoveItem(item.id)}
                         className="text-[#FFB5A7] hover:text-[#FEC89A]"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                >
+                  Remove
+                </button>
               </div>
-
+            </motion.div>
+          ))}
+        </div>
+        
               {/* Total and Checkout */}
               <div className="bg-gradient-to-r from-[#FFB5A7]/10 via-[#FEC89A]/10 to-[#F8EDEB]/10 p-6 border-t-2 border-[#FFB5A7]/20">
-                <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6">
                   <span className="text-xl font-bold text-[#FFB5A7]">Total:</span>
                   <span className="text-2xl font-bold text-[#FFB5A7]">${total.toFixed(2)}</span>
-                </div>
+          </div>
                 <div className="flex justify-end space-x-4">
                   <motion.button
                     onClick={() => clearCart()}
@@ -450,16 +450,16 @@ const Cart = () => {
                   >
                     Clear Cart
                   </motion.button>
-                  <motion.button
+          <motion.button
                     onClick={() => setShowCheckoutModal(true)}
                     className="px-8 py-3 bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px]"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
                     Checkout
-                  </motion.button>
-                </div>
-              </div>
+          </motion.button>
+        </div>
+      </div>
             </motion.div>
           </div>
         </>

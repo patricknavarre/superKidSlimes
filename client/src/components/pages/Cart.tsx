@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { Dialog } from '@headlessui/react';
-import { AnimatePresence } from 'framer-motion';
 
 interface CheckoutForm {
   name: string;
   email: string;
-  address: string;
   phone: string;
+  address: string;
 }
 
-const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+interface SuccessModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface CheckoutModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  cartItems: any[];
+  total: number;
+  clearCart: () => void;
+  setShowSuccessModal: (show: boolean) => void;
+}
+
+const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
         <Dialog
+          static
           open={isOpen}
           onClose={onClose}
           className="relative z-50"
@@ -26,26 +40,19 @@ const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Dialog.Panel>
               <motion.div 
-                className="bg-gradient-to-b from-pink-100 to-purple-100 rounded-2xl p-8 shadow-xl border-4 border-black max-w-md w-full"
-                initial={{ scale: 0.5, opacity: 0 }}
+                className="bg-white rounded-2xl p-8 shadow-xl border-2 border-[#FFB5A7] max-w-sm w-full relative overflow-hidden"
+                initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ type: "spring", bounce: 0.5 }}
+                exit={{ scale: 0.9, opacity: 0 }}
               >
                 <motion.div 
-                  className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center border-4 border-black shadow-lg"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                >
-                  <span className="text-3xl">✨</span>
-                </motion.div>
-
-                <Dialog.Title className="text-2xl font-display text-center font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text mb-4">
-                  Yay! Order Confirmed! 🎉
-                </Dialog.Title>
+                  className="absolute inset-0 bg-gradient-to-br from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] opacity-10"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.1 }}
+                />
 
                 <motion.div 
-                  className="space-y-4 text-center"
+                  className="space-y-4 text-center relative z-10"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -54,14 +61,14 @@ const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
                     Your magical slimes will be hand-delivered with extra sparkles! ✨
                   </p>
 
-                  <div className="bg-white/50 rounded-xl p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <h3 className="font-bold text-pink-600 mb-2">Payment Due on Delivery</h3>
+                  <div className="bg-gradient-to-br from-[#FFB5A7]/10 via-[#FEC89A]/10 to-[#F8EDEB]/10 rounded-xl p-4 border-2 border-[#FFB5A7] shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)]">
+                    <h3 className="font-bold text-[#FFB5A7] mb-2">Payment Due on Delivery</h3>
                     <p className="text-gray-600">We accept:</p>
                     <div className="flex justify-center gap-4 mt-2">
-                      <span className="px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-full font-bold border-2 border-black">
+                      <span className="px-4 py-2 bg-gradient-to-r from-[#FFB5A7] to-[#FEC89A] text-white rounded-full font-bold border-2 border-white/50">
                         Venmo
                       </span>
-                      <span className="px-4 py-2 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full font-bold border-2 border-black">
+                      <span className="px-4 py-2 bg-gradient-to-r from-[#FEC89A] to-[#F8EDEB] text-[#FFB5A7] rounded-full font-bold border-2 border-[#FFB5A7]">
                         Cash
                       </span>
                     </div>
@@ -69,7 +76,7 @@ const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 
                   <motion.button
                     onClick={onClose}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
+                    className="w-full px-6 py-3 bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px]"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -85,46 +92,41 @@ const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
   );
 };
 
-const Cart = () => {
-  const { items, removeFromCart, updateQuantity, cartCount, clearCart } = useCart();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [checkoutForm, setCheckoutForm] = useState<CheckoutForm>({
+const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, cartItems, total, clearCart, setShowSuccessModal }) => {
+  const [formData, setFormData] = useState<CheckoutForm>({
     name: '',
     email: '',
-    address: '',
     phone: '',
+    address: ''
   });
-  const [showForm, setShowForm] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-
-  const total = items.reduce((sum: number, item) => sum + item.price * item.quantity, 0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setCheckoutForm(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleCheckout = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Starting checkout process...');
     setIsSubmitting(true);
-    setSubmitStatus('idle');
-
-    const orderDetails = items.map(item => 
+    setError(null);
+    
+    // Format order details
+    const orderDetails = cartItems.map(item => 
       `• ${item.title}\n  - Quantity: ${item.quantity}\n  - Price per item: $${item.price.toFixed(2)}\n  - Subtotal: $${(item.price * item.quantity).toFixed(2)}`
     ).join('\n\n');
 
     const formattedMessage = `
 Customer Information:
 -------------------
-Name: ${checkoutForm.name}
-Email: ${checkoutForm.email}
-Phone: ${checkoutForm.phone}
-Shipping Address: ${checkoutForm.address}
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Shipping Address: ${formData.address}
 
 Order Details:
 -------------------
@@ -134,273 +136,334 @@ Total Order Amount: $${total.toFixed(2)}
     `;
 
     const emailContent = {
-      to_name: "Super Kid Slimes",
-      from_name: checkoutForm.name,
-      customer_email: checkoutForm.email,
-      customer_phone: checkoutForm.phone,
-      customer_address: checkoutForm.address,
+      to_name: "Tacta Slime",
+      from_name: formData.name,
+      customer_email: formData.email,
+      customer_phone: formData.phone,
+      customer_address: formData.address,
       message: formattedMessage,
       order_details: orderDetails,
       total_amount: `$${total.toFixed(2)}`,
-      reply_to: checkoutForm.email
+      reply_to: formData.email
     };
 
     try {
-      console.log('Sending email...');
       await emailjs.send(
         'service_wg2vx5s',
         'template_rgiuw7b',
-        emailContent
+        emailContent,
+        'FsKNSDRtYP7OliZQs'
       );
       
-      console.log('Email sent successfully, showing modal...');
-      setShowSuccessModal(true);
-      setSubmitStatus('success');
-      setShowForm(false);
-      
-    } catch (error) {
-      console.error('Error sending email:', error);
-      setSubmitStatus('error');
+      // Clear the cart first
+      clearCart();
+      // Close the checkout modal
+      onClose();
+      // Add a small delay before showing success modal to ensure smooth transition
+      setTimeout(() => {
+        setShowSuccessModal(true);
+      }, 300);
+    } catch (err) {
+      console.error('Error sending email:', err);
+      setError('Failed to send order. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleModalClose = () => {
-    setShowSuccessModal(false);
-    clearCart();
-  };
-
-  if (cartCount === 0) {
-    return (
-      <div className="w-full min-h-screen bg-gradient-to-b from-pink-200 via-yellow-100 to-orange-200">
-        <div className="w-full bg-gradient-to-r from-orange-400 via-pink-400 to-yellow-400 p-6 shadow-lg mb-8">
-          <motion.h1 
-            className="text-4xl font-display text-white text-center font-bold drop-shadow-lg"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Your Cart ✨
-          </motion.h1>
-        </div>
-        <motion.div 
-          className="max-w-2xl mx-auto px-4 py-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black">
-            <h2 className="text-2xl font-display font-bold mb-4 text-pink-600">Your cart is empty!</h2>
-            <p className="text-gray-600 mb-8">Time to add some magical slimes to your collection! ✨</p>
-            <Link
-              to="/shop"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
-            >
-              Start Shopping
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-pink-200 via-yellow-100 to-orange-200">
-      <SuccessModal 
-        isOpen={showSuccessModal} 
-        onClose={handleModalClose} 
-      />
-      {/* Header Section */}
-      <div className="w-full bg-gradient-to-r from-orange-400 via-pink-400 to-yellow-400 p-6 shadow-lg mb-8">
-        <motion.h1 
-          className="text-4xl font-display text-white text-center font-bold drop-shadow-lg"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+    <AnimatePresence>
+      {isOpen && (
+        <Dialog
+          static
+          open={isOpen}
+          onClose={onClose}
+          className="relative z-50"
         >
-          Your Magical Cart ✨
-        </motion.h1>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {submitStatus === 'success' && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-6 bg-gradient-to-r from-green-400/20 to-emerald-400/20 backdrop-blur-sm text-green-700 rounded-xl border-2 border-green-500 shadow-lg text-center"
-          >
-            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-2 border-green-600">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold mb-2">Thank you for your order! ✨</h3>
-            <p>We'll be in touch soon with your magical slimes!</p>
-          </motion.div>
-        )}
-
-        {submitStatus === 'error' && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-100/80 backdrop-blur-sm text-red-700 rounded-xl border-2 border-red-500"
-          >
-            <p className="text-center">Oops! There was an error processing your order. Please try again.</p>
-          </motion.div>
-        )}
-
-        <motion.div 
-          className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border-2 border-black overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className="p-6">
-            {items.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex items-center justify-between py-4 border-b-2 border-gray-100 last:border-b-0"
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel>
+              <motion.div 
+                className="bg-white rounded-2xl p-8 shadow-xl border-2 border-[#FFB5A7] max-w-md w-full relative overflow-hidden"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
               >
-                <div className="flex items-center space-x-4">
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <img
-                      src={item.image || 'https://via.placeholder.com/100'}
-                      alt={item.title}
-                      className="w-20 h-20 object-cover rounded-lg border-2 border-black shadow-md"
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FFB5A7]/5 via-[#FEC89A]/5 to-[#F8EDEB]/5" />
+                
+                <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                  <h2 className="text-2xl font-bold text-[#FFB5A7] mb-6">Checkout</h2>
+                  
+                  {error && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+                      {error}
+                    </div>
+                  )}
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 rounded-xl border-2 border-[#FFB5A7]/20 focus:border-[#FFB5A7] focus:outline-none"
+                      placeholder="Your name"
+                      disabled={isSubmitting}
                     />
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-gray-800">{item.title}</h3>
-                    <p className="text-pink-600 font-medium">${item.price.toFixed(2)}</p>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 rounded-xl border-2 border-[#FFB5A7]/20 focus:border-[#FFB5A7] focus:outline-none"
+                      placeholder="your@email.com"
+                      disabled={isSubmitting}
+                    />
                   </div>
-                </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center bg-gray-100 rounded-full border-2 border-black">
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-pink-600 transition-colors duration-300 rounded-l-full border-r-2 border-black hover:bg-gray-200"
-                    >
-                      -
-                    </button>
-                    <span className="w-8 text-center font-medium">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-pink-600 transition-colors duration-300 rounded-r-full border-l-2 border-black hover:bg-gray-200"
-                    >
-                      +
-                    </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 rounded-xl border-2 border-[#FFB5A7]/20 focus:border-[#FFB5A7] focus:outline-none"
+                      placeholder="Your phone number"
+                      disabled={isSubmitting}
+                    />
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="px-3 py-1 text-red-500 hover:text-red-600 font-medium rounded-full hover:bg-red-50 transition-colors duration-300"
-                  >
-                    Remove
-                  </button>
-                </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                    <textarea
+                      name="address"
+                      required
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full px-4 py-2 rounded-xl border-2 border-[#FFB5A7]/20 focus:border-[#FFB5A7] focus:outline-none"
+                      placeholder="Your shipping address"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+
+                  <div className="pt-4">
+                    <motion.button
+                      type="submit"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                      whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Place Order'}
+                    </motion.button>
+                  </div>
+                </form>
               </motion.div>
-            ))}
+            </Dialog.Panel>
           </div>
+        </Dialog>
+      )}
+    </AnimatePresence>
+  );
+};
 
-          <div className="bg-gradient-to-r from-pink-100/50 to-purple-100/50 p-6 border-t-2 border-black">
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-xl font-bold text-gray-800">Total:</span>
-              <span className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text">
-                ${total.toFixed(2)}
-              </span>
+const Cart = () => {
+  const { items, removeFromCart, updateQuantity, clearCart, cartCount } = useCart();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+
+  // Add console log to debug modal state
+  useEffect(() => {
+    console.log('Success modal state:', showSuccessModal);
+  }, [showSuccessModal]);
+
+  const total = items.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+
+  const handleQuantityChange = (id: string, newQuantity: number) => {
+    if (newQuantity >= 1) {
+      const itemToUpdate = items.find(item => item.id === id);
+      if (itemToUpdate) {
+        const updatedQuantity = Math.max(1, newQuantity);
+        console.log('Updating quantity:', { id, oldQuantity: itemToUpdate.quantity, newQuantity: updatedQuantity });
+        updateQuantity(id, updatedQuantity);
+      }
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    removeFromCart(id);
+  };
+
+  // Always render the SuccessModal outside the conditional render
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB]">
+      {/* Always render the SuccessModal first */}
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={() => {
+          setShowSuccessModal(false);
+          // Optional: Navigate to shop after closing success modal
+          // window.location.href = '/shop';
+        }} 
+      />
+      
+      {cartCount === 0 && !showSuccessModal ? (
+        <>
+          <div className="w-full bg-white/80 backdrop-blur-sm p-6 shadow-lg mb-8 border-b-2 border-[#FFB5A7]/20">
+            <motion.h1 
+              className="text-4xl font-bold text-[#FFB5A7] text-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Your Cart ✨
+            </motion.h1>
+          </div>
+          <motion.div 
+            className="max-w-2xl mx-auto px-4 py-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border-2 border-[#FFB5A7]/20">
+              <h2 className="text-2xl font-bold mb-4 text-[#FFB5A7]">Your cart is empty!</h2>
+              <p className="text-gray-600 mb-8">Time to add some magical slimes to your collection! ✨</p>
+              <Link
+                to="/shop"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px]"
+              >
+                Start Shopping
+              </Link>
             </div>
+          </motion.div>
+        </>
+      ) : (
+        <>
+          <CheckoutModal 
+            isOpen={showCheckoutModal}
+            onClose={() => setShowCheckoutModal(false)}
+            cartItems={items}
+            total={total}
+            clearCart={clearCart}
+            setShowSuccessModal={setShowSuccessModal}
+          />
 
-            {!showForm ? (
-              <motion.button 
-                onClick={() => setShowForm(true)}
-                className="w-full px-8 py-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Proceed to Checkout ✨
-              </motion.button>
-            ) : (
-              <motion.form 
-                onSubmit={handleCheckout} 
-                className="space-y-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={checkoutForm.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={checkoutForm.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={checkoutForm.phone}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Shipping Address</label>
-                  <textarea
-                    name="address"
-                    value={checkoutForm.address}
-                    onChange={handleInputChange}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-300"
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <motion.button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 px-8 py-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] disabled:opacity-50"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {isSubmitting ? 'Processing...' : 'Complete Order ✨'}
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="px-8 py-4 bg-gray-100 text-gray-700 font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Back
-                  </motion.button>
-                </div>
-              </motion.form>
-            )}
+          {/* Header */}
+          <div className="w-full bg-white/80 backdrop-blur-sm p-6 shadow-lg mb-8 border-b-2 border-[#FFB5A7]/20">
+            <motion.h1 
+              className="text-4xl font-bold text-[#FFB5A7] text-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Your Magical Cart ✨
+            </motion.h1>
           </div>
-        </motion.div>
-      </div>
+
+          {/* Cart Items */}
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <motion.div 
+              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-[#FFB5A7]/20 overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="p-6 space-y-6">
+                {items.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex items-center justify-between py-4 border-b-2 border-[#FFB5A7]/10 last:border-b-0"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#FFB5A7]/20 via-[#FEC89A]/20 to-[#F8EDEB]/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <img
+                          src={item.image || 'https://via.placeholder.com/100'}
+                          alt={item.title}
+                          className="w-20 h-20 object-cover rounded-lg border-2 border-[#FFB5A7]/20"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#FFB5A7]">{item.title}</h3>
+                        <p className="text-[#FFB5A7]">${item.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            const currentQuantity = item.quantity || 1;
+                            handleQuantityChange(item.id, currentQuantity - 1);
+                          }}
+                          className="w-8 h-8 rounded-full bg-[#FFB5A7]/10 text-[#FFB5A7] hover:bg-[#FFB5A7]/20 flex items-center justify-center"
+                          disabled={item.quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center text-[#FFB5A7] font-medium">{item.quantity || 1}</span>
+                        <button
+                          onClick={() => {
+                            const currentQuantity = item.quantity || 1;
+                            handleQuantityChange(item.id, currentQuantity + 1);
+                          }}
+                          className="w-8 h-8 rounded-full bg-[#FFB5A7]/10 text-[#FFB5A7] hover:bg-[#FFB5A7]/20 flex items-center justify-center"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="text-[#FFB5A7] hover:text-[#FEC89A]"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Total and Checkout */}
+              <div className="bg-gradient-to-r from-[#FFB5A7]/10 via-[#FEC89A]/10 to-[#F8EDEB]/10 p-6 border-t-2 border-[#FFB5A7]/20">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-xl font-bold text-[#FFB5A7]">Total:</span>
+                  <span className="text-2xl font-bold text-[#FFB5A7]">${total.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <motion.button
+                    onClick={() => clearCart()}
+                    className="px-6 py-3 bg-white text-[#FFB5A7] font-bold rounded-xl border-2 border-[#FFB5A7] hover:bg-[#FFB5A7]/10"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Clear Cart
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowCheckoutModal(true)}
+                    className="px-8 py-3 bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px]"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Checkout
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

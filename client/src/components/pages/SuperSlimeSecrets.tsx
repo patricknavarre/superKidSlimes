@@ -1,63 +1,14 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-interface FAQItemProps {
-  question: string;
-  answer: string | React.ReactNode;
-  isOpen: boolean;
-  onToggle: () => void;
-}
-
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle }) => {
-  return (
-    <div className="mb-4">
-      <button
-        onClick={onToggle}
-        className="w-full text-left p-4 bg-white rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-300 flex justify-between items-center"
-      >
-        <span className="font-bold text-gray-800">{question}</span>
-        <span className="text-pink-500 text-xl">{isOpen ? '−' : '+'}</span>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="p-4 bg-pink-50 rounded-b-xl border-x-2 border-b-2 border-black mt-[-2px]">
-              {typeof answer === 'string' ? (
-                <p className="text-gray-700">{answer}</p>
-              ) : (
-                answer
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 const SuperSlimeSecrets = () => {
-  const [openFAQs, setOpenFAQs] = useState<{ [key: string]: boolean }>({});
-
-  const toggleFAQ = (id: string) => {
-    setOpenFAQs(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3
+        staggerChildren: 0.1
       }
     }
   };
@@ -68,266 +19,134 @@ const SuperSlimeSecrets = () => {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
       }
     }
   };
 
   return (
-    <div className="w-full bg-gradient-to-b from-pink-200 via-yellow-100 to-orange-200 min-h-screen">
-      {/* Header Section */}
-      <div className="w-full bg-gradient-to-r from-orange-400 via-pink-400 to-yellow-400 p-6 shadow-lg mb-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-5xl font-display text-white mb-4 font-bold drop-shadow-lg"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Super Slime Secrets ✨
-          </motion.h1>
-          <motion.p 
-            className="text-2xl text-white/90 mb-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Your Magical Guide to All Things Slime!
-          </motion.p>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Introduction Section */}
-        <motion.div 
-          className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black mb-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] py-12 px-4"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <div className="max-w-7xl mx-auto">
+        <motion.h1 
+          className="text-4xl font-bold text-center mb-4 text-[#FF8C94]"
+          variants={itemVariants}
         >
-          <motion.h2 
-            className="text-3xl font-display text-pink-600 mb-6 font-bold"
-            variants={itemVariants}
-          >
-            Welcome to the Magical World of Slime! 🌟
-          </motion.h2>
-          <motion.p 
-            className="text-gray-700 text-lg mb-6"
-            variants={itemVariants}
-          >
+          Slime Secrets ✨
+        </motion.h1>
+        <motion.p 
+          className="text-lg text-center mb-12 text-[#FF8C94]/80"
+          variants={itemVariants}
+        >
+          Your Magical Guide to All Things Slime!
+        </motion.p>
+
+        {/* Welcome Section */}
+        <motion.div
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 mb-12 border-2 border-[#FFB5A7] shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)]"
+          variants={cardVariants}
+        >
+          <h2 className="text-2xl font-bold text-[#FF8C94] mb-4">Welcome to the Magical World of Slime! ✨</h2>
+          <p className="text-[#FF8C94]/80 leading-relaxed">
             Whether you're a first-time slimer or buying for someone special, you've come to the right place! 
             Let's dive into everything you need to know about our magical slimes.
-          </motion.p>
+          </p>
         </motion.div>
 
-        {/* Best Slimes for Beginners */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+        {/* Perfect First Slimes */}
+        <motion.div
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 mb-12 border-2 border-[#FFB5A7] shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)]"
+          variants={cardVariants}
         >
-          <motion.div 
-            className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black"
-            variants={itemVariants}
-          >
-            <h2 className="text-2xl font-display text-purple-600 mb-4 font-bold">
-              Perfect First Slimes ✨
-            </h2>
-            <div className="space-y-4">
-              <div className="bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
-                <h3 className="font-bold text-purple-600 mb-2">Cloud Dream Slime</h3>
-                <p className="text-gray-600">
-                  Super soft and fluffy! Perfect for beginners with its easy-to-handle texture and long-lasting formula.
-                </p>
+          <h2 className="text-2xl font-bold text-[#FF8C94] mb-6">Perfect First Slimes ✨</h2>
+          <div className="grid gap-6">
+            <div className="bg-gradient-to-r from-[#FFB5A7]/10 via-[#FEC89A]/10 to-[#F8EDEB]/10 rounded-xl p-6 border border-[#FFB5A7]/20">
+              <h3 className="text-xl font-bold text-[#FF8C94] mb-2">Cloud Dream Slime</h3>
+              <p className="text-[#FF8C94]/80">
+                Super soft and fluffy! Perfect for beginners with its easy-to-handle texture and long-lasting formula.
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-[#FFB5A7]/10 via-[#FEC89A]/10 to-[#F8EDEB]/10 rounded-xl p-6 border border-[#FFB5A7]/20">
+              <h3 className="text-xl font-bold text-[#FF8C94] mb-2">Butter Blast</h3>
+              <p className="text-[#FF8C94]/80">
+                Smooth and spreadable with amazing stretch. A classic choice that's always satisfying to play with.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Slime Care Guide */}
+        <motion.div
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 mb-12 border-2 border-[#FFB5A7] shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)]"
+          variants={cardVariants}
+        >
+          <h2 className="text-2xl font-bold text-[#FF8C94] mb-6">Slime Care Guide 🌟</h2>
+          <div className="grid gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-[#FFB5A7] to-[#FEC89A] rounded-full flex items-center justify-center flex-shrink-0 border border-white/50">
+                <span className="text-white font-bold">1</span>
               </div>
-              <div className="bg-pink-50 rounded-lg p-4 border-2 border-pink-200">
-                <h3 className="font-bold text-pink-600 mb-2">Butter Bliss Slime</h3>
-                <p className="text-gray-600">
-                  Smooth and creamy texture that's easy to play with. Great for stress relief!
-                </p>
+              <div>
+                <h3 className="text-lg font-bold text-[#FF8C94] mb-1">Storage</h3>
+                <p className="text-[#FF8C94]/80">Keep your slime in an airtight container at room temperature, away from direct sunlight.</p>
               </div>
             </div>
-          </motion.div>
-
-          <motion.div 
-            className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black"
-            variants={itemVariants}
-          >
-            <h2 className="text-2xl font-display text-pink-600 mb-4 font-bold">
-              When to Buy? 🎁
-            </h2>
-            <p className="text-gray-600 mb-4">
-              For the best slime experience, we recommend:
-            </p>
-            <ul className="space-y-3 text-gray-600">
-              <li className="flex items-start">
-                <span className="text-pink-500 mr-2">✨</span>
-                Best to play with within 2-3 weeks of purchase
-              </li>
-              <li className="flex items-start">
-                <span className="text-pink-500 mr-2">✨</span>
-                Store in a cool, dry place
-              </li>
-              <li className="flex items-start">
-                <span className="text-pink-500 mr-2">✨</span>
-                Keep container sealed when not in use
-              </li>
-            </ul>
-          </motion.div>
-        </motion.div>
-
-        {/* Slime Care Tips */}
-        <motion.div 
-          className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black mb-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.h2 
-            className="text-3xl font-display text-pink-600 mb-6 font-bold"
-            variants={itemVariants}
-          >
-            Magical Slime Care Tips 🪄
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div 
-              className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-6 border-2 border-pink-200"
-              variants={itemVariants}
-            >
-              <h3 className="text-xl font-bold text-pink-600 mb-3">Before Playing</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>✨ Wash hands thoroughly</li>
-                <li>✨ Avoid hand lotions</li>
-                <li>✨ Clean play surface</li>
-              </ul>
-            </motion.div>
-            <motion.div 
-              className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-200"
-              variants={itemVariants}
-            >
-              <h3 className="text-xl font-bold text-orange-600 mb-3">During Play</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>✨ Keep away from carpet</li>
-                <li>✨ Use quick, fun movements</li>
-                <li>✨ Don't mix different slimes</li>
-              </ul>
-            </motion.div>
-            <motion.div 
-              className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200"
-              variants={itemVariants}
-            >
-              <h3 className="text-xl font-bold text-purple-600 mb-3">Storage</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>✨ Always seal container</li>
-                <li>✨ Store at room temperature</li>
-                <li>✨ Keep away from direct sun</li>
-              </ul>
-            </motion.div>
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-[#FFB5A7] to-[#FEC89A] rounded-full flex items-center justify-center flex-shrink-0 border border-white/50">
+                <span className="text-white font-bold">2</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[#FF8C94] mb-1">Playing</h3>
+                <p className="text-[#FF8C94]/80">Always start with clean, dry hands. Take breaks if the slime becomes too sticky.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-[#FFB5A7] to-[#FEC89A] rounded-full flex items-center justify-center flex-shrink-0 border border-white/50">
+                <span className="text-white font-bold">3</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[#FF8C94] mb-1">Maintenance</h3>
+                <p className="text-[#FF8C94]/80">If your slime becomes sticky, knead in a tiny amount of activator. If it's too firm, add a drop of lotion.</p>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Add new FAQ Section before the "Ready to Shop" section */}
-        <motion.div 
-          className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg border-2 border-black mb-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+        {/* Ready to Shop */}
+        <motion.div
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 text-center border-2 border-[#FFB5A7] shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)]"
+          variants={cardVariants}
         >
-          <motion.h2 
-            className="text-3xl font-display text-pink-600 mb-6 font-bold"
-            variants={itemVariants}
+          <h2 className="text-2xl font-bold text-[#FF8C94] mb-4">Ready to Start Your Slime Adventure? 🎉</h2>
+          <p className="text-[#FF8C94]/80 mb-6">
+            Browse our collection and find your perfect match!
+          </p>
+          <Link 
+            to="/shop"
+            className="inline-block bg-gradient-to-r from-[#FFB5A7] via-[#FEC89A] to-[#F8EDEB] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 border-2 border-white/50 shadow-[4px_4px_0px_0px_rgba(255,181,167,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(255,181,167,0.2)] hover:translate-x-[2px] hover:translate-y-[2px]"
           >
-            Frequently Asked Questions ✨
-          </motion.h2>
-
-          <div className="space-y-4">
-            <FAQItem
-              question="Who can enjoy playing with slime?"
-              answer="Everyone! Slime is a wonderful sensory toy that brings joy to both children and adults. It's perfect for stress relief, sensory play, and creative expression. The satisfying texture and playful nature make it a fantastic activity for all ages!"
-              isOpen={openFAQs['age']}
-              onToggle={() => toggleFAQ('age')}
-            />
-
-            <FAQItem
-              question="Is slime safe to eat?"
-              answer={
-                <div className="space-y-2">
-                  <p className="font-bold text-red-600">No! Slime is strictly for external play only.</p>
-                  <p>While our slimes may look and smell delicious, they are NOT edible and should never be consumed. Always supervise young children during play.</p>
-                </div>
-              }
-              isOpen={openFAQs['edible']}
-              onToggle={() => toggleFAQ('edible')}
-            />
-
-            <FAQItem
-              question="Help! My slime is too sticky!"
-              answer={
-                <div className="space-y-2">
-                  <p>Don't worry! Sticky slime is easily fixable. Here's what you can do:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Make a simple activator solution at home by mixing 1 cup of warm water with 1 tablespoon of borax</li>
-                    <li>Add a few drops of the solution and knead thoroughly</li>
-                    <li>Repeat if needed until desired texture is achieved</li>
-                    <li>Remember: less is more! Add small amounts at a time</li>
-                  </ul>
-                </div>
-              }
-              isOpen={openFAQs['sticky']}
-              onToggle={() => toggleFAQ('sticky')}
-            />
-
-            <FAQItem
-              question="My slime isn't stretchy anymore!"
-              answer={
-                <div className="space-y-2">
-                  <p>This is common and easy to fix! Slime can become less stretchy due to temperature or time. Try these solutions:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Warm it up by playing with it in your hands</li>
-                    <li>Add a tiny bit of lotion or hand sanitizer</li>
-                    <li>Store in a warm, dry place until it softens</li>
-                    <li>Note: For clear slimes, avoid lotion as it may cause cloudiness</li>
-                  </ul>
-                </div>
-              }
-              isOpen={openFAQs['stretchy']}
-              onToggle={() => toggleFAQ('stretchy')}
-            />
-
-            <FAQItem
-              question="Help! My slime is too stiff!"
-              answer="No worries! If your slime becomes too firm after adding activator solution, simply seal it in its container and let it rest in a warm, dry place. The texture will naturally soften over time, usually taking anywhere from a few days to a few weeks depending on how much activator was used. Patience is key!"
-              isOpen={openFAQs['stiff']}
-              onToggle={() => toggleFAQ('stiff')}
-            />
-          </div>
-        </motion.div>
-
-        {/* Ready to Shop Section */}
-        <motion.div 
-          className="text-center py-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.h2 
-            className="text-3xl font-display text-pink-600 mb-6 font-bold"
-            variants={itemVariants}
-          >
-            Ready to Start Your Slime Adventure? ✨
-          </motion.h2>
-          <motion.div variants={itemVariants}>
-            <Link 
-              to="/shop"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-full transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]"
-            >
-              Shop Magical Slimes
-            </Link>
-          </motion.div>
+            Shop Now
+          </Link>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

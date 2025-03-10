@@ -10,7 +10,7 @@ interface Category {
   displayOrder: number;
 }
 
-const API_URL = 'http://localhost:4020/api';
+const API_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'http://localhost:4020/api';
 
 const CategoryManager: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);

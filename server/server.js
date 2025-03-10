@@ -9,9 +9,26 @@ dotenv.config();
 
 const app = express();
 
+// CORS Configuration - Update to allow your Vercel frontend
+const corsOptions = {
+  origin: [
+    "https://super-kid-slimes.vercel.app",
+    "https://tacta-slime.vercel.app",
+    process.env.CLIENT_URL,
+  ],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {

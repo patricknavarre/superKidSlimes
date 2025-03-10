@@ -4,6 +4,9 @@ import { useCart } from '../../context/CartContext';
 import { CartItem } from '../../types/cart';
 import axios from 'axios';
 
+// Use environment variable for API URL with fallback to localhost
+const API_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'http://localhost:4020/api';
+
 interface Product {
   _id: string;
   name: string;
@@ -39,7 +42,7 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4020/api/categories');
+        const response = await axios.get(`${API_URL}/categories`);
         const activeCategories = response.data.filter((cat: Category) => cat.isActive);
         setCategories(activeCategories);
         setIsLoading(false);
@@ -54,7 +57,7 @@ const Shop: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:4020/api/products');
+      const response = await axios.get(`${API_URL}/products`);
       setProducts(response.data);
       setLoading(false);
     } catch (err) {

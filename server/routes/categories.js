@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Category = require("../models/Category");
+const mongoose = require("mongoose");
 
 // Debug middleware specific to categories
 router.use((req, res, next) => {
@@ -12,6 +13,21 @@ router.use((req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     console.log("Fetching categories...");
+
+    // Check if mongoose is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.log(
+        "MongoDB not connected, readyState:",
+        mongoose.connection.readyState
+      );
+      return res.status(500).json({
+        message: "Database connection not ready",
+        readyState: mongoose.connection.readyState,
+      });
+    }
+
+    // Try a simple find operation first
+    console.log("Attempting to access categories collection...");
 
     // Set a timeout for this specific query
     const timeout = 15000; // 15 seconds
@@ -35,6 +51,9 @@ router.get("/", async (req, res) => {
     return res.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
+    console.error("Error name:", error.name);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
 
     // Handle different types of errors
     if (error.message === "Query timeout after 15 seconds") {
@@ -48,10 +67,15 @@ router.get("/", async (req, res) => {
       return res.status(500).json({
         message: "Database error occurred",
         error: error.message,
+        name: error.name,
       });
     }
 
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+      name: error.name,
+      stack: process.env.NODE_ENV === "production" ? null : error.stack,
+    });
   }
 });
 

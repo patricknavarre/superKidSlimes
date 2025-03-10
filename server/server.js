@@ -51,9 +51,34 @@ app.use((req, res, next) => {
   next();
 });
 
+// Test route to verify server is working
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Server is working!" });
+});
+
+// Simple test endpoint that doesn't use MongoDB
+app.get("/api/test-no-db", (req, res) => {
+  res.json({
+    message: "Server is working without database!",
+    env: {
+      nodeEnv: process.env.NODE_ENV,
+      mongoDbDefined: !!process.env.MONGODB_URI,
+      mongoDbFirstChars: process.env.MONGODB_URI
+        ? `${process.env.MONGODB_URI.substring(0, 15)}...`
+        : "undefined",
+    },
+  });
+});
+
 // MongoDB Connection
 console.log("Attempting to connect to MongoDB...");
 console.log("MongoDB URI defined:", !!process.env.MONGODB_URI);
+console.log(
+  "MongoDB URI prefix:",
+  process.env.MONGODB_URI
+    ? process.env.MONGODB_URI.substring(0, 20) + "..."
+    : "undefined"
+);
 
 mongoose
   .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/slime-shop", {
@@ -77,11 +102,6 @@ mongoose
     // Don't exit the process, let the server run even if DB connection fails
     console.log("Server will continue running without database connection.");
   });
-
-// Test route to verify server is working
-app.get("/api/test", (req, res) => {
-  res.json({ message: "Server is working!" });
-});
 
 // Routes
 app.use("/api/products", productRoutes);

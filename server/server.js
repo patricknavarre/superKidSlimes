@@ -58,10 +58,13 @@ app.get("/api/test", (req, res) => {
 
 // Simple test endpoint that doesn't use MongoDB
 app.get("/api/test-no-db", (req, res) => {
+  console.log("Test endpoint called - no DB connection required");
   res.json({
     message: "Server is working without database!",
+    timestamp: new Date().toISOString(),
     env: {
       nodeEnv: process.env.NODE_ENV,
+      port: process.env.PORT,
       mongoDbDefined: !!process.env.MONGODB_URI,
       mongoDbFirstChars: process.env.MONGODB_URI
         ? `${process.env.MONGODB_URI.substring(0, 15)}...`
@@ -70,13 +73,13 @@ app.get("/api/test-no-db", (req, res) => {
   });
 });
 
-// MongoDB Connection
+// MongoDB Connection with detailed logging
 console.log("Attempting to connect to MongoDB...");
 console.log("MongoDB URI defined:", !!process.env.MONGODB_URI);
 console.log(
-  "MongoDB URI prefix:",
+  "MongoDB URI first 15 chars:",
   process.env.MONGODB_URI
-    ? process.env.MONGODB_URI.substring(0, 20) + "..."
+    ? process.env.MONGODB_URI.substring(0, 15) + "..."
     : "undefined"
 );
 
@@ -140,5 +143,6 @@ const PORT = process.env.PORT || 4020;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Test the server at: http://localhost:${PORT}/api/test`);
+  console.log(`Test without DB: http://localhost:${PORT}/api/test-no-db`);
   console.log(`Categories endpoint: http://localhost:${PORT}/api/categories`);
 });

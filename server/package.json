@@ -1,8 +1,11 @@
 {
-  "name": "slime-shop-server",
+  "name": "super-kids-slime-api",
   "version": "1.0.0",
-  "description": "Server for Super Kid Slimes shop",
+  "description": "Backend API for Super Kid Slimes shop",
   "main": "server.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"

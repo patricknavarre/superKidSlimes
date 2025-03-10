@@ -2,72 +2,76 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
+import TactaLogo from "../assets/images/image002.png";
+import TactaBadge from "../assets/images/image001.png";
 
 const Navigation = () => {
-  const { cartCount } = useCart();
+  const { cart } = useCart();
 
   return (
-    <div className="relative w-full bg-gradient-to-r from-[#FF8C94] via-[#FFB5A7] to-[#FEC89A] shadow-lg overflow-hidden">
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-[#FF8C94] via-[#FFB5A7] to-[#FEC89A] opacity-50"
-        animate={{
-          x: ["0%", "-100%"],
-          transition: {
-            duration: 15,
+    <motion.header
+      className="sticky top-0 z-50 w-full"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="relative">
+        {/* Animated gradient background */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-[#FF8C94] via-[#FFB5A7] to-[#FEC89A]"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 10,
             repeat: Infinity,
-            ease: "linear"
-          }
-        }}
-      />
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-[#FEC89A] via-[#FFB5A7] to-[#FF8C94] opacity-50"
-        animate={{
-          x: ["100%", "0%"],
-          transition: {
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear"
-          }
-        }}
-      />
-      <nav className="relative max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-white drop-shadow">
-          Tacta Slime
-        </Link>
+            repeatType: "reverse",
+          }}
+        />
         
-        <div className="flex items-center gap-4">
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <div className="relative flex items-center justify-between px-4 py-2">
+          <Link to="/" className="flex items-center space-x-2">
+            {/* Show badge on mobile, wordmark on larger screens */}
+            <img 
+              src={TactaBadge}
+              alt="Tacta Slime Co Badge" 
+              className="h-12 w-12 md:hidden"
+            />
+            <img 
+              src={TactaLogo}
+              alt="Tacta Slime Company" 
+              className="hidden md:block h-12 w-auto"
+            />
+          </Link>
+
+          <nav className="flex items-center space-x-2 md:space-x-4">
             <Link
               to="/shop"
-              className="px-6 py-2 bg-white/90 text-[#FF8C94] font-bold rounded-full border border-[#FFB5A7] shadow-sm transition-all duration-300 hover:bg-white"
+              className="px-3 md:px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-[#FF1493] font-medium hover:bg-white/95 transition-colors text-sm md:text-base"
             >
               Shop Now
             </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
               to="/secrets"
-              className="px-6 py-2 bg-white/90 text-[#FF8C94] font-bold rounded-full border border-[#FFB5A7] shadow-sm transition-all duration-300 hover:bg-white"
+              className="px-3 md:px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-[#FF1493] font-medium hover:bg-white/95 transition-colors text-sm md:text-base"
             >
               Slime Secrets
             </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
               to="/cart"
-              className="relative px-6 py-2 bg-white/90 text-[#FF8C94] font-bold rounded-full border border-[#FFB5A7] shadow-sm transition-all duration-300 hover:bg-white"
+              className="px-3 md:px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-[#FF1493] font-medium hover:bg-white/95 transition-colors relative text-sm md:text-base"
             >
               Cart
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center bg-gradient-to-r from-[#FF8C94] to-[#FFB5A7] text-white text-sm font-bold rounded-full border-2 border-white">
-                  {cartCount}
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 h-5 w-5 md:h-6 md:w-6 flex items-center justify-center rounded-full bg-[#FF1493] text-white text-xs md:text-sm font-medium">
+                  {cart.length}
                 </span>
               )}
             </Link>
-          </motion.div>
+          </nav>
         </div>
-      </nav>
-    </div>
+      </div>
+    </motion.header>
   );
 };
 

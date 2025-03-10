@@ -12,12 +12,46 @@ router.use((req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     console.log("Fetching products...");
-    const products = await Product.find({ isActive: true });
+
+    // Set a timeout for this specific query
+    const timeout = 20000; // 20 seconds
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(
+        () => reject(new Error("Query timeout after 20 seconds")),
+        timeout
+      );
+    });
+
+    // Only return necessary fields to reduce data size
+    const query = Product.find({ isActive: true })
+      .select("name description price image category isActive _id") // Select only needed fields
+      .lean() // Use lean for better performance
+      .limit(100); // Limit results as a safety measure
+
+    // Race the query against the timeout
+    const products = await Promise.race([query.exec(), timeoutPromise]);
+
     console.log("Products found:", products.length);
-    res.json(products);
+    return res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ message: error.message });
+
+    // Handle different types of errors
+    if (error.message === "Query timeout after 20 seconds") {
+      return res.status(504).json({
+        message: "Query timed out. Please try again later.",
+        error: error.message,
+      });
+    }
+
+    if (error.name === "MongooseError" || error.name === "MongoError") {
+      return res.status(500).json({
+        message: "Database error occurred",
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({ message: error.message });
   }
 });
 

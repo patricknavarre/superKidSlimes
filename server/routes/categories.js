@@ -12,13 +12,46 @@ router.use((req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     console.log("Fetching categories...");
-    const categories = await Category.find().sort("displayOrder");
+
+    // Set a timeout for this specific query
+    const timeout = 15000; // 15 seconds
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(
+        () => reject(new Error("Query timeout after 15 seconds")),
+        timeout
+      );
+    });
+
+    // Optimize the query
+    const query = Category.find()
+      .select("name slug isActive displayOrder _id") // Select only needed fields
+      .sort("displayOrder")
+      .lean(); // Use lean for better performance
+
+    // Race the query against the timeout
+    const categories = await Promise.race([query.exec(), timeoutPromise]);
+
     console.log("Categories found:", categories.length);
-    console.log("Categories:", JSON.stringify(categories, null, 2));
-    res.json(categories);
+    return res.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
-    res.status(500).json({ message: error.message });
+
+    // Handle different types of errors
+    if (error.message === "Query timeout after 15 seconds") {
+      return res.status(504).json({
+        message: "Query timed out. Please try again later.",
+        error: error.message,
+      });
+    }
+
+    if (error.name === "MongooseError" || error.name === "MongoError") {
+      return res.status(500).json({
+        message: "Database error occurred",
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({ message: error.message });
   }
 });
 

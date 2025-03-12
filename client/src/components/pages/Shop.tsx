@@ -2,10 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { CartItem } from '../../types/cart';
-import axios from 'axios';
-
-// Use environment variable for API URL with fallback to localhost
-const API_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'http://localhost:4020/api';
+import api from '../../utils/api';
 
 interface Product {
   _id: string;
@@ -42,23 +39,14 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setLoading(true);
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/categories`
-        );
-        setCategories(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        
-        // Check if this is a database connection error (status 503)
-        if (axios.isAxiosError(error) && error.response?.status === 503) {
-          setError("Database connection is currently unavailable. Please try again later.");
-        } else {
-          setError("Failed to load categories. Please try again later.");
-        }
-        
-        setLoading(false);
+        const response = await api.get('/categories');
+        const activeCategories = response.data.filter((cat: Category) => cat.isActive);
+        setCategories(activeCategories);
+        setIsLoading(false);
+      } catch (err: any) {
+        console.error('Failed to fetch categories:', err);
+        setError(`Failed to load categories: ${err.message}`);
+        setIsLoading(false);
       }
     };
 
@@ -67,26 +55,23 @@ const Shop: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      let url = `${process.env.REACT_APP_API_URL}/products`;
-      
-      if (selectedCategory) {
-        url = `${process.env.REACT_APP_API_URL}/products/category/${selectedCategory}`;
-      }
-      
-      const response = await axios.get(url);
+      const response = await api.get('/products');
       setProducts(response.data);
       setLoading(false);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    } catch (err: any) {
+      console.error('Error fetching products:', err);
+      let errorMessage = 'Failed to load products. Please try again later.';
       
-      // Check if this is a database connection error (status 503)
-      if (axios.isAxiosError(error) && error.response?.status === 503) {
-        setError("Database connection is currently unavailable. Please try again later.");
-      } else {
-        setError("Failed to load products. Please try again later.");
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMessage = `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
       }
       
+      setError(errorMessage);
       setLoading(false);
     }
   };

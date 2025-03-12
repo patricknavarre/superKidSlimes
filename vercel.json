@@ -2,25 +2,25 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
+      "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "client/build"
+        "distDir": "build"
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "https://superkidslimes.onrender.com/api/$1"
     },
     {
       "src": "/static/(.*)",
       "dest": "/client/build/static/$1"
+    },
+    {
+      "src": "/(.+\\.[a-zA-Z]+)$",
+      "dest": "/client/build/$1"
     },
     {
       "src": "/(.*)",

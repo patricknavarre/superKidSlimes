@@ -1,10 +1,15 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
 // Use environment variable for API URL with fallback to production URL
 const API_URL = process.env.REACT_APP_API_URL || 'https://superkidslimes.onrender.com/api';
 
 // Maximum number of retries for failed requests
 const MAX_RETRIES = 2;
+
+// Extend the Axios request config to include our custom properties
+interface CustomRequestConfig extends InternalAxiosRequestConfig {
+  retryCount?: number;
+}
 
 // Create an axios instance with custom config
 const api = axios.create({
@@ -17,15 +22,17 @@ const api = axios.create({
 
 // Add request interceptor for logging
 api.interceptors.request.use(
-  config => {
+  (config: InternalAxiosRequestConfig) => {
+    // Cast to our custom type
+    const customConfig = config as CustomRequestConfig;
     // Initialize retry count
-    config.retryCount = config.retryCount || 0;
+    customConfig.retryCount = customConfig.retryCount || 0;
     
     // Log outgoing requests in development
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`API Request: ${customConfig.method?.toUpperCase()} ${customConfig.url}`);
     }
-    return config;
+    return customConfig;
   },
   error => {
     return Promise.reject(error);
@@ -38,7 +45,12 @@ api.interceptors.response.use(
     return response;
   },
   async error => {
-    const config = error.config;
+    if (!error.config) {
+      return Promise.reject(error);
+    }
+    
+    // Cast to our custom type
+    const config = error.config as CustomRequestConfig;
 
     // If we've already retried the maximum times, or the error is not retryable, reject
     if (!config || config.retryCount >= MAX_RETRIES || error.response) {
@@ -70,7 +82,7 @@ api.interceptors.response.use(
     }
 
     // Increment the retry count
-    config.retryCount += 1;
+    config.retryCount = (config.retryCount || 0) + 1;
 
     // Log retry attempt
     console.log(`Retrying API call to ${config.url} (attempt ${config.retryCount} of ${MAX_RETRIES})...`);

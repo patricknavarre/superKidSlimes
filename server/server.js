@@ -102,8 +102,6 @@ const connectToMongoDB = async () => {
         serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
         socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
         connectTimeoutMS: 30000, // Connection timeout
-        keepAlive: true,
-        keepAliveInitialDelay: 300000, // 5 minutes
       }
     );
 

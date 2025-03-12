@@ -73,41 +73,187 @@ app.get("/api/test-no-db", (req, res) => {
   });
 });
 
-// MongoDB Connection with detailed logging
-console.log("Attempting to connect to MongoDB...");
-console.log("MongoDB URI defined:", !!process.env.MONGODB_URI);
-console.log(
-  "MongoDB URI first 15 chars:",
-  process.env.MONGODB_URI
-    ? process.env.MONGODB_URI.substring(0, 15) + "..."
-    : "undefined"
-);
+// Add a diagnostic endpoint to check MongoDB connection
+app.get("/api/db-status", async (req, res) => {
+  console.log("Database status check requested");
 
-// Add additional validation for MongoDB URI
-if (!process.env.MONGODB_URI) {
-  console.error("WARNING: MONGODB_URI environment variable is not defined!");
-  console.error(
-    "Will attempt to use default local connection string as fallback."
+  try {
+    // Check if MongoDB is connected
+    const connectionState = mongoose.connection.readyState;
+    const connectionStates = {
+      0: "disconnected",
+      1: "connected",
+      2: "connecting",
+      3: "disconnecting",
+    };
+
+    const status = {
+      connected: connectionState === 1,
+      state: connectionStates[connectionState] || "unknown",
+      timestamp: new Date().toISOString(),
+    };
+
+    // If connected, try to fetch collection info
+    if (connectionState === 1) {
+      try {
+        const collections = await mongoose.connection.db
+          .listCollections()
+          .toArray();
+        status.collections = collections.map((c) => c.name);
+
+        // Check if products collection exists
+        if (collections.some((c) => c.name === "products")) {
+          const count = await mongoose.connection.db
+            .collection("products")
+            .countDocuments();
+          status.productCount = count;
+
+          if (count > 0) {
+            const sample = await mongoose.connection.db
+              .collection("products")
+              .findOne({});
+            status.sampleProduct = {
+              id: sample._id,
+              name: sample.name || "unknown",
+              hasImage: !!sample.images,
+            };
+          }
+        }
+
+        // Add database name info
+        status.databaseName = mongoose.connection.db.databaseName;
+      } catch (err) {
+        status.collectionError = err.message;
+      }
+    }
+
+    // If not connected, try to get connection URI info
+    else {
+      // Get connection URI without exposing credentials
+      let connUri = process.env.MONGODB_URI || "not set";
+      if (connUri !== "not set") {
+        try {
+          // Extract parts without exposing sensitive info
+          const withoutProtocol = connUri.replace(/^mongodb(\+srv)?:\/\//, "");
+          const atParts = withoutProtocol.split("@");
+
+          if (atParts.length === 2) {
+            const hostPart = atParts[1];
+            status.hostInfo = hostPart.split("/")[0]; // Just the host part
+
+            // Check if database name is in the URI
+            const dbParts = hostPart.split("/");
+            if (dbParts.length > 1 && dbParts[1]) {
+              status.databaseInUri = dbParts[1].split("?")[0] || "empty";
+            } else {
+              status.databaseInUri = "not specified";
+            }
+          }
+        } catch (e) {
+          status.uriParseError = e.message;
+        }
+      } else {
+        status.uriInfo = "No connection URI set in environment";
+      }
+    }
+
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to check database status",
+      message: err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Create a function to ensure the connection URI has a database name
+function ensureDatabaseInUri(uri) {
+  if (!uri) return uri;
+
+  // Check if URI already has a database specified after the host
+  const withoutProtocol = uri.replace(/^mongodb(\+srv)?:\/\//, "");
+  const atParts = withoutProtocol.split("@");
+
+  if (atParts.length !== 2) {
+    console.log("Connection string format doesn't match expected pattern");
+    return uri; // Not a standard connection string
+  }
+
+  const hostPart = atParts[1];
+
+  // See if there's a slash after the host (indicating a database name)
+  const hasDbName =
+    hostPart.includes("/") &&
+    hostPart.split("/")[1] &&
+    hostPart.split("/")[1].length > 0;
+
+  if (hasDbName) {
+    console.log(
+      `Database name already specified in connection string: ${
+        hostPart.split("/")[1].split("?")[0]
+      }`
+    );
+    return uri; // Already has a database name
+  }
+
+  console.log(
+    "No database name found in connection string, adding 'test' database"
   );
+
+  // Add the 'test' database name
+  const hasParams = uri.includes("?");
+  if (hasParams) {
+    // Insert 'test' before the parameters
+    return uri.replace("?", "/test?");
+  } else {
+    // Append '/test' to the end
+    return `${uri}/test`;
+  }
 }
 
 // Create a function to handle MongoDB connection
 const connectToMongoDB = async () => {
   try {
-    await mongoose.connect(
-      process.env.MONGODB_URI || "mongodb://localhost:27017/slime-shop",
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-        socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
-        connectTimeoutMS: 30000, // Connection timeout
-      }
+    // Log if MONGODB_URI environment variable is set
+    console.log(
+      "MongoDB URI environment variable:",
+      process.env.MONGODB_URI ? "defined" : "undefined"
     );
+
+    // Get the URI with 'test' database explicitly specified
+    const connectionUri = ensureDatabaseInUri(
+      process.env.MONGODB_URI || "mongodb://localhost:27017/slime-shop"
+    );
+
+    // Log sanitized connection string (without credentials)
+    const sanitizedUri = connectionUri.replace(
+      /(mongodb(\+srv)?:\/\/)([^:]+):([^@]+)@/,
+      (match, protocol, srv, username) => `${protocol}${username}:****@`
+    );
+    console.log(`Connecting to MongoDB with: ${sanitizedUri}`);
+
+    await mongoose.connect(connectionUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+      socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
+      connectTimeoutMS: 30000, // Connection timeout
+    });
 
     console.log("Connected to MongoDB successfully!");
     console.log("Database:", mongoose.connection.db.databaseName);
     console.log("MongoDB connection state:", mongoose.connection.readyState);
+
+    // List collections to verify connection is working correctly
+    console.log("Listing collections...");
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    console.log(`Found ${collections.length} collections:`);
+    collections.forEach((collection) => {
+      console.log(` - ${collection.name}`);
+    });
 
     // Add a connection event listener to detect disconnects
     mongoose.connection.on("disconnected", () => {

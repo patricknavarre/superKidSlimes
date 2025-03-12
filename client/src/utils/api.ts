@@ -1,7 +1,16 @@
 import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
-// Use environment variable for API URL with fallback to production URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://superkidslimes.onrender.com/api';
+// Fix API URL construction - ensure it doesn't have double slashes
+const getBaseUrl = () => {
+  const envUrl = process.env.REACT_APP_API_URL || 'https://superkidslimes.onrender.com/api';
+  // Remove trailing slash if present to prevent // in URLs
+  return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
+};
+
+// Use the properly formatted API URL
+const API_URL = getBaseUrl();
+
+console.log('API URL configured as:', API_URL); // Log the configured API URL
 
 // Maximum number of retries for failed requests
 const MAX_RETRIES = 2;
@@ -23,6 +32,10 @@ const api = axios.create({
 // Add request interceptor for logging
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // Log full URL for debugging
+    const fullUrl = `${API_URL}${config.url}`;
+    console.log(`Making request to: ${fullUrl}`);
+    
     // Cast to our custom type
     const customConfig = config as CustomRequestConfig;
     // Initialize retry count

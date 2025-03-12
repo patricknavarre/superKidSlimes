@@ -39,6 +39,8 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        console.log('Attempting to fetch categories...');
+        // Ensure correct path format
         const response = await api.get('/categories');
         const activeCategories = response.data.filter((cat: Category) => cat.isActive);
         setCategories(activeCategories);
@@ -55,6 +57,8 @@ const Shop: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
+      console.log('Attempting to fetch products...');
+      // Ensure correct path format
       const response = await api.get('/products');
       setProducts(response.data);
       setLoading(false);
@@ -65,7 +69,12 @@ const Shop: React.FC = () => {
       if (err.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        errorMessage = `Server error: ${err.response.status}`;
+        errorMessage = `Server error: ${err.response.status} - ${err.response.statusText || 'Not Found'}`;
+        
+        // If it's a 404, provide more specific guidance
+        if (err.response.status === 404) {
+          errorMessage = 'Products endpoint not found. Please check server configuration.';
+        }
       } else if (err.request) {
         // The request was made but no response was received
         errorMessage = 'No response from server. Please check your connection.';

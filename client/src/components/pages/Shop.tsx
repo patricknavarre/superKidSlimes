@@ -218,10 +218,16 @@ const Shop: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF1493] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
+      <div className="min-h-screen bg-[#1a1a1a] text-white py-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF1493] mx-auto"></div>
+            <p className="mt-4 text-xl text-gray-300">Loading products...</p>
+            <p className="mt-2 text-gray-400 max-w-md mx-auto">
+              This may take a moment if the server is waking up from sleep mode.
+              Please wait while we connect to the database.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -229,15 +235,32 @@ const Shop: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <p className="text-red-500">{error}</p>
-          <button
-            onClick={fetchProducts}
-            className="mt-4 px-6 py-3 bg-[#FF1493] text-white rounded-lg hover:bg-[#FF1493]/90 transition-colors"
-          >
-            Try Again
-          </button>
+      <div className="min-h-screen bg-[#1a1a1a] text-white py-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-[#FF1493] mb-4">Connection Issue</h2>
+            <p className="text-gray-300 mb-6 max-w-md mx-auto">{error}</p>
+            
+            {error.includes('timeout') && (
+              <div className="bg-[#2a2a2a] p-4 rounded-lg mb-6 max-w-lg mx-auto">
+                <h3 className="font-bold text-[#FF1493] mb-2">Why am I seeing this?</h3>
+                <p className="text-gray-400 mb-2">
+                  Our free hosting service puts the server to sleep after inactivity. 
+                  It may take 30-60 seconds to wake up when you first visit.
+                </p>
+                <p className="text-gray-400">
+                  We're retrying your request automatically. Please be patient!
+                </p>
+              </div>
+            )}
+            
+            <button
+              onClick={fetchProducts}
+              className="mt-4 px-6 py-3 bg-[#FF1493] text-white rounded-lg hover:bg-[#FF1493]/90 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );

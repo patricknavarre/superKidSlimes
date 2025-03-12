@@ -53,7 +53,7 @@ api.interceptors.response.use(
     const config = error.config as CustomRequestConfig;
 
     // If we've already retried the maximum times, or the error is not retryable, reject
-    if (!config || config.retryCount >= MAX_RETRIES || error.response) {
+    if (!config || (config.retryCount ?? 0) >= MAX_RETRIES || error.response) {
       // Handle network errors
       if (error.message === 'Network Error') {
         console.error('Network error detected. Please check your connection.');

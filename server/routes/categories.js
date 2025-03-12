@@ -2,79 +2,56 @@ const express = require("express");
 const router = express.Router();
 const Category = require("../models/Category");
 const mongoose = require("mongoose");
+const checkDbConnection = require("../middleware/dbCheck");
 
-// Debug middleware specific to categories
+// Fallback mock data for when the database is not connected
+const mockCategories = [
+  {
+    _id: "mock1",
+    name: "Fluffy Slime",
+    slug: "fluffy-slime",
+    isActive: true,
+    displayOrder: 1,
+  },
+  {
+    _id: "mock2",
+    name: "Glossy Slime",
+    slug: "glossy-slime",
+    isActive: true,
+    displayOrder: 2,
+  },
+  {
+    _id: "mock3",
+    name: "Crunchy Slime",
+    slug: "crunchy-slime",
+    isActive: true,
+    displayOrder: 3,
+  },
+];
+
+// Middleware to log requests
 router.use((req, res, next) => {
-  console.log("Categories Route:", req.method, req.url);
+  console.log(`Categories API: ${req.method} ${req.url}`);
   next();
 });
 
+// Apply database connection check middleware to all routes
+router.use(checkDbConnection);
+
 // Get all categories
 router.get("/", async (req, res) => {
+  console.log("Fetching all categories...");
+
   try {
-    console.log("Fetching categories...");
-
-    // Check if mongoose is connected
-    if (mongoose.connection.readyState !== 1) {
-      console.log(
-        "MongoDB not connected, readyState:",
-        mongoose.connection.readyState
-      );
-      return res.status(500).json({
-        message: "Database connection not ready",
-        readyState: mongoose.connection.readyState,
-      });
-    }
-
-    // Try a simple find operation first
-    console.log("Attempting to access categories collection...");
-
-    // Set a timeout for this specific query
-    const timeout = 15000; // 15 seconds
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(
-        () => reject(new Error("Query timeout after 15 seconds")),
-        timeout
-      );
-    });
-
-    // Optimize the query
-    const query = Category.find()
-      .select("name slug isActive displayOrder _id") // Select only needed fields
-      .sort("displayOrder")
-      .lean(); // Use lean for better performance
-
-    // Race the query against the timeout
-    const categories = await Promise.race([query.exec(), timeoutPromise]);
-
-    console.log("Categories found:", categories.length);
-    return res.json(categories);
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-
-    // Handle different types of errors
-    if (error.message === "Query timeout after 15 seconds") {
-      return res.status(504).json({
-        message: "Query timed out. Please try again later.",
-        error: error.message,
-      });
-    }
-
-    if (error.name === "MongooseError" || error.name === "MongoError") {
-      return res.status(500).json({
-        message: "Database error occurred",
-        error: error.message,
-        name: error.name,
-      });
-    }
-
-    return res.status(500).json({
-      message: error.message,
-      name: error.name,
-      stack: process.env.NODE_ENV === "production" ? null : error.stack,
+    const categories = await Category.find().sort({ name: 1 });
+    console.log(`Found ${categories.length} categories`);
+    res.json(categories);
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    res.status(500).json({
+      error: "Failed to fetch categories",
+      message: err.message,
+      timestamp: new Date().toISOString(),
     });
   }
 });

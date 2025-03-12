@@ -42,13 +42,23 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${API_URL}/categories`);
-        const activeCategories = response.data.filter((cat: Category) => cat.isActive);
-        setCategories(activeCategories);
-        setIsLoading(false);
-      } catch (err) {
-        setError('Failed to load categories');
-        setIsLoading(false);
+        setLoading(true);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/categories`
+        );
+        setCategories(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        
+        // Check if this is a database connection error (status 503)
+        if (axios.isAxiosError(error) && error.response?.status === 503) {
+          setError("Database connection is currently unavailable. Please try again later.");
+        } else {
+          setError("Failed to load categories. Please try again later.");
+        }
+        
+        setLoading(false);
       }
     };
 
@@ -57,13 +67,27 @@ const Shop: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/products`);
+      setLoading(true);
+      let url = `${process.env.REACT_APP_API_URL}/products`;
+      
+      if (selectedCategory) {
+        url = `${process.env.REACT_APP_API_URL}/products/category/${selectedCategory}`;
+      }
+      
+      const response = await axios.get(url);
       setProducts(response.data);
       setLoading(false);
-    } catch (err) {
-      setError('Failed to load products. Please try again later.');
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      
+      // Check if this is a database connection error (status 503)
+      if (axios.isAxiosError(error) && error.response?.status === 503) {
+        setError("Database connection is currently unavailable. Please try again later.");
+      } else {
+        setError("Failed to load products. Please try again later.");
+      }
+      
       setLoading(false);
-      console.error('Error fetching products:', err);
     }
   };
 

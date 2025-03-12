@@ -2,79 +2,62 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
+const checkDbConnection = require("../middleware/dbCheck");
 
-// Debug middleware specific to products
+// Fallback mock data for when the database is not connected
+const mockProducts = [
+  {
+    _id: "mock1",
+    name: "Blue Fluffy Cloud",
+    description: "A light and fluffy blue slime that feels like a cloud",
+    price: 9.99,
+    image: "https://via.placeholder.com/300",
+    category: "fluffy-slime",
+    isActive: true,
+  },
+  {
+    _id: "mock2",
+    name: "Pink Glossy Dream",
+    description: "Super glossy and stretchy pink slime",
+    price: 8.99,
+    image: "https://via.placeholder.com/300",
+    category: "glossy-slime",
+    isActive: true,
+  },
+  {
+    _id: "mock3",
+    name: "Rainbow Crunch",
+    description: "Crunchy slime with rainbow foam beads",
+    price: 10.99,
+    image: "https://via.placeholder.com/300",
+    category: "crunchy-slime",
+    isActive: true,
+  },
+];
+
+// Middleware to log requests
 router.use((req, res, next) => {
-  console.log("Products Route:", req.method, req.url);
+  console.log(`Products API: ${req.method} ${req.url}`);
   next();
 });
 
+// Apply database connection check middleware to all routes
+router.use(checkDbConnection);
+
 // Get all products
 router.get("/", async (req, res) => {
+  console.log("Fetching all products...");
+
   try {
-    console.log("Fetching products...");
-
-    // Check if mongoose is connected
-    if (mongoose.connection.readyState !== 1) {
-      console.log(
-        "MongoDB not connected, readyState:",
-        mongoose.connection.readyState
-      );
-      return res.status(500).json({
-        message: "Database connection not ready",
-        readyState: mongoose.connection.readyState,
-      });
-    }
-
-    // Try a simple find operation first
-    console.log("Attempting to access products collection...");
-
-    // Set a timeout for this specific query
-    const timeout = 20000; // 20 seconds
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(
-        () => reject(new Error("Query timeout after 20 seconds")),
-        timeout
-      );
-    });
-
-    // Only return necessary fields to reduce data size
-    const query = Product.find({})
-      .select("name description price image category isActive _id") // Select only needed fields
-      .lean() // Use lean for better performance
-      .limit(100); // Limit results as a safety measure
-
-    // Race the query against the timeout
-    const products = await Promise.race([query.exec(), timeoutPromise]);
-
-    console.log("Products found:", products.length);
-    return res.json(products);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-
-    // Handle different types of errors
-    if (error.message === "Query timeout after 20 seconds") {
-      return res.status(504).json({
-        message: "Query timed out. Please try again later.",
-        error: error.message,
-      });
-    }
-
-    if (error.name === "MongooseError" || error.name === "MongoError") {
-      return res.status(500).json({
-        message: "Database error occurred",
-        error: error.message,
-        name: error.name,
-      });
-    }
-
-    return res.status(500).json({
-      message: error.message,
-      name: error.name,
-      stack: process.env.NODE_ENV === "production" ? null : error.stack,
+    const products = await Product.find().sort({ createdAt: -1 });
+    console.log(`Found ${products.length} products`);
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    res.status(500).json({
+      error: "Failed to fetch products",
+      message: err.message,
+      timestamp: new Date().toISOString(),
     });
   }
 });
